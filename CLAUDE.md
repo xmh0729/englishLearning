@@ -23,7 +23,7 @@
 ### JS 代码结构（按出现顺序）
 
 ```
-DATA 对象           -- 所有练习数据（words / phrases / sentences / grammar）
+DATA 对象           -- 所有练习数据（words / phrases / sentences / grammar / dictation）
 state 对象          -- 当前 UI 状态（unit / tab / mode / answers）
 loadProgress()      -- 从 localStorage 恢复进度
 saveProgress()      -- 持久化进度到 localStorage
@@ -42,6 +42,9 @@ submitGrammar()     -- 提交选择题答案
 submitGrammarFill() -- 提交填空题答案
 renderPrint()       -- 渲染打印界面
 doPrint()           -- 生成练习卷并触发 window.print()
+showDictationPrint()      -- 专项默写打印：勾选界面
+toggleAllDictationCheckboxes() -- 全选/取消全选默写勾选框
+doPrintDictation()        -- 生成专项默写练习卷并触发打印
 resetProgress()     -- 重置所有进度
 ```
 
@@ -56,6 +59,18 @@ resetProgress()     -- 重置所有进度
 - `u`: 单元编号（整数，如 1-6）
 - `en`: 英文内容（用户需要输入的答案）
 - `zh`: 中文提示（显示给用户的内容）
+
+### dictation
+
+```js
+{id: <序号>, en: "<english>", zh: "<chinese>"}
+```
+
+- `id`: 序号（整数）
+- `en`: 英文句子（正确答案）
+- `zh`: 中文提示（显示给用户）
+
+专项默写是跨单元的综合句子练习，独立于 unit 分组。
 
 ### grammar
 
