@@ -720,12 +720,42 @@ function checkAnswer(input, expected) {
 }
 
 // ========== TTS ==========
+// TTS: cache English voice
+let _enVoice = null;
+let _voicesLoaded = false;
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+  _voicesLoaded = true;
+  // Prefer high-quality voices: Samantha (macOS), Google US English, any en-US, any en
+  const prefs = [
+    v => v.name.includes('Samantha'),
+    v => v.name.includes('Google') && v.lang.startsWith('en'),
+    v => v.name.includes('Natural') && v.lang.startsWith('en'),
+    v => v.lang === 'en-US' && !v.name.includes('Compact'),
+    v => v.lang === 'en-GB' && !v.name.includes('Compact'),
+    v => v.lang.startsWith('en-'),
+    v => v.lang.startsWith('en'),
+  ];
+  for (const test of prefs) {
+    const found = voices.find(test);
+    if (found) { _enVoice = found; return; }
+  }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
 function speak(text) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
+  if (!_voicesLoaded) loadVoices();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US';
-  u.rate = 0.85;
+  u.rate = 1;
+  u.pitch = 1;
+  if (_enVoice) u.voice = _enVoice;
   speechSynthesis.speak(u);
 }
 
