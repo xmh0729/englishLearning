@@ -829,6 +829,7 @@ function renderDictation(el) {
       <button class="btn btn-outline ${state.mode==='listen'?'active':''}" onclick="switchMode('listen')">听英文写英文</button>
       <button class="btn btn-outline ${state.random?'active':''}" onclick="toggleRandom()">随机顺序</button>
       <button class="btn btn-warning" onclick="clearTabProgress()">重做本组</button>
+      ${isDictation ? '<button class="btn btn-outline" onclick="showDictationPrint()">🖨️ 打印练习卷</button>' : ''}
     </div>
   `;
 
@@ -1129,6 +1130,56 @@ function doPrint(type) {
     }
   }
 
+  sheet.innerHTML = html;
+  sheet.style.display = 'block';
+  setTimeout(() => window.print(), 200);
+  setTimeout(() => { sheet.style.display = 'none'; }, 1000);
+}
+
+function showDictationPrint() {
+  const el = document.getElementById('content');
+  const items = DATA.dictation;
+  let html = `
+    <div class="card no-print">
+      <h3 style="margin-bottom:12px;">选择要打印的默写句子</h3>
+      <div style="margin-bottom:12px;">
+        <button class="btn btn-outline" onclick="toggleAllDictationCheckboxes()">全选/取消全选</button>
+      </div>
+      <div id="dictation-checklist">
+  `;
+  items.forEach((item, i) => {
+    html += `<label style="display:block;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+      <input type="checkbox" class="dict-print-cb" value="${i}" checked style="margin-right:8px;">
+      ${i+1}. ${item.zh}
+    </label>`;
+  });
+  html += `</div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="doPrintDictation()">打印选中项</button>
+        <button class="btn btn-outline" onclick="render()">返回</button>
+      </div>
+    </div>
+    <div class="print-sheet" id="print-sheet"></div>
+  `;
+  el.innerHTML = html;
+}
+
+function toggleAllDictationCheckboxes() {
+  const cbs = document.querySelectorAll('.dict-print-cb');
+  const allChecked = Array.from(cbs).every(cb => cb.checked);
+  cbs.forEach(cb => cb.checked = !allChecked);
+}
+
+function doPrintDictation() {
+  const cbs = document.querySelectorAll('.dict-print-cb:checked');
+  if (cbs.length === 0) { alert('请至少选择一条句子'); return; }
+  const sheet = document.getElementById('print-sheet');
+  let html = `<h1 style="text-align:center;font-size:20px;margin-bottom:4px;">6B英语复习 · 专项默写练习卷</h1>`;
+  html += `<p style="text-align:center;font-size:13px;color:#666;margin-bottom:16px;">共${cbs.length}题 · 姓名：__________ · 日期：__________</p>`;
+  cbs.forEach((cb, i) => {
+    const item = DATA.dictation[parseInt(cb.value)];
+    html += `<div class="print-item"><span class="prompt">${i+1}. ${item.zh}</span><div class="write-line"></div></div>`;
+  });
   sheet.innerHTML = html;
   sheet.style.display = 'block';
   setTimeout(() => window.print(), 200);
