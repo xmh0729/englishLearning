@@ -173,6 +173,9 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   <button class="nav-item" onclick="selectUnit(5)">Unit 5 A party</button>
   <button class="nav-item" onclick="selectUnit(6)">Unit 6 Interesting country</button>
   <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:12px;padding-top:12px;">
+    <button class="nav-item" onclick="selectUnit('dictation')">📝 专项默写</button>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:12px;padding-top:12px;">
     <button class="nav-item" onclick="resetProgress()" style="color:#e74c3c;">重置进度</button>
   </div>
 </nav>
@@ -641,6 +644,21 @@ grammar: [
   {u:6, type:"choice", q:"下列哪个是一般将来时的时间标志词？", opts:["yesterday","last week","tomorrow","every day"], ans:2, exp:"tomorrow, next week, soon, in a few days 等都是将来时标志词"},
   {u:6, type:"fill", q:"He ____ (will, be going to) have a picnic this Sunday. 两种都对，填 will", ans:"will", exp:"will = be going to，此处两种均可"},
   {u:6, type:"choice", q:"\"I'll ____ many things tomorrow.\"", opts:["do","does","doing","did"], ans:0, exp:"will 后跟动词原形 do"},
+],
+dictation: [
+  {id:1, en:"The children will learn about Australia.", zh:"孩子们将会学习有关澳大利亚的知识。"},
+  {id:2, en:"London is an interesting city.", zh:"伦敦是一个有趣的城市。"},
+  {id:3, en:"Liu Tao knows a lot about Australia.", zh:"刘涛对澳大利亚很了解。"},
+  {id:4, en:"They will find out about this country next week.", zh:"他们将在下周了解这个国家。"},
+  {id:5, en:"He will ask Mr Green about Sydney tomorrow.", zh:"他明天会向格林先生询问悉尼的情况。"},
+  {id:6, en:"The city has fresh air. Its view is fair.", zh:"这个城市有新鲜的空气。它的景色很美。"},
+  {id:7, en:"I can't wait to have a picnic.", zh:"我迫不及待地想去野餐了。"},
+  {id:8, en:"Who wants to be a cook?", zh:"谁想成为厨师？"},
+  {id:9, en:"I'll learn about cooking on the Internet.", zh:"我将在网上学习烹饪。"},
+  {id:10, en:"Billy will cook a nice dinner for Bobby and Sam.", zh:"比利会为Bobby和Sam做一顿美味的晚餐。"},
+  {id:11, en:"Billy is busy cooking.", zh:"比利正忙着做饭。"},
+  {id:12, en:"What do you think?", zh:"你觉得怎么样？"},
+  {id:13, en:"I want to learn more about America.", zh:"我想更多地了解美国。"}
 ]
 };
 
@@ -679,8 +697,15 @@ function saveProgress() {
 // ========== NAVIGATION ==========
 function selectUnit(u) {
   state.unit = u;
+  if (u === 'dictation') {
+    state.tab = 'dictation';
+    document.querySelector('.header').style.display = 'none';
+  } else {
+    if (state.tab === 'dictation') state.tab = 'words';
+    document.querySelector('.header').style.display = '';
+  }
   document.querySelectorAll('.sidebar .nav-item').forEach((el, i) => {
-    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i));
+    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i) || (u === 'dictation' && el.textContent.includes('专项默写')));
   });
   if (window.innerWidth < 768) toggleSidebar();
   render();
@@ -701,6 +726,7 @@ function toggleSidebar() {
 
 // ========== FILTERING ==========
 function getItems(tab) {
+  if (tab === 'dictation') return [...DATA.dictation];
   const src = DATA[tab] || [];
   return state.unit === 'all' ? [...src] : src.filter(i => i.u === state.unit);
 }
@@ -753,7 +779,7 @@ function speak(text) {
   if (!_voicesLoaded) loadVoices();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US';
-  u.rate = 1;
+  u.rate = 0.85;
   u.pitch = 1;
   if (_enVoice) u.voice = _enVoice;
   speechSynthesis.speak(u);
@@ -764,6 +790,7 @@ function render() {
   const el = document.getElementById('content');
   if (state.tab === 'print') return renderPrint(el);
   if (state.tab === 'grammar') return renderGrammar(el);
+  if (state.tab === 'dictation') return renderDictation(el);
   renderDictation(el);
 }
 
@@ -778,18 +805,17 @@ function renderDictation(el) {
   }
   state.currentItems = items;
 
+  const isDictation = state.tab === 'dictation';
   const total = items.length;
-  const answered = items.filter((_, i) => {
-    const key = `${state.tab}-${items[i].u}-${DATA[state.tab].indexOf(items[i])}`;
-    return state.answers[key] !== undefined;
-  }).length;
-  const correct = items.filter((_, i) => {
-    const key = `${state.tab}-${items[i].u}-${DATA[state.tab].indexOf(items[i])}`;
-    return state.answers[key]?.correct;
-  }).length;
+  const getKey = (item) => {
+    if (isDictation) return `dictation-0-${DATA.dictation.indexOf(item)}`;
+    return `${state.tab}-${item.u}-${DATA[state.tab].indexOf(item)}`;
+  };
+  const answered = items.filter(item => state.answers[getKey(item)] !== undefined).length;
+  const correct = items.filter(item => state.answers[getKey(item)]?.correct).length;
 
   const pct = total > 0 ? Math.round(answered / total * 100) : 0;
-  const tabLabel = state.tab === 'words' ? '单词' : state.tab === 'phrases' ? '词组' : '句子';
+  const tabLabel = isDictation ? '默写' : state.tab === 'words' ? '单词' : state.tab === 'phrases' ? '词组' : '句子';
 
   let html = `
     <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
@@ -807,13 +833,12 @@ function renderDictation(el) {
   `;
 
   items.forEach((item, idx) => {
-    const globalIdx = DATA[state.tab].indexOf(item);
-    const key = `${state.tab}-${item.u}-${globalIdx}`;
+    const key = getKey(item);
     const answered = state.answers[key];
     const inputId = `input-${idx}`;
 
     html += `<div class="card" id="card-${idx}">`;
-    html += `<div class="label">Unit ${item.u} · #${idx+1}</div>`;
+    html += `<div class="label">${isDictation ? '专项默写' : 'Unit ' + item.u} · #${idx+1}</div>`;
 
     if (state.mode === 'zh2en') {
       html += `<div class="zh">${item.zh}</div>`;
@@ -832,7 +857,7 @@ function renderDictation(el) {
       onkeydown="if(event.key==='Enter')submitAnswer(${idx},'${key}','${inputId}')">`;
     if (!answered) {
       html += `<button class="btn btn-primary" onclick="submitAnswer(${idx},'${key}','${inputId}')">确认</button>`;
-      if (state.tab === 'sentences') {
+      if (state.tab === 'sentences' || isDictation) {
         html += `<button class="btn btn-outline" onclick="showHint(${idx})">提示</button>`;
       }
     }
@@ -846,8 +871,8 @@ function renderDictation(el) {
       }
     }
 
-    // Hint area for sentences
-    if (state.tab === 'sentences' && !answered) {
+    // Hint area for sentences and dictation
+    if ((state.tab === 'sentences' || isDictation) && !answered) {
       html += `<div id="hint-${idx}" class="answer-display" style="color:var(--warning);display:none;"></div>`;
     }
 
@@ -907,9 +932,9 @@ function toggleRandom() {
 }
 function clearTabProgress() {
   const items = getItems(state.tab);
+  const isDictation = state.tab === 'dictation';
   items.forEach(item => {
-    const globalIdx = DATA[state.tab].indexOf(item);
-    const key = `${state.tab}-${item.u}-${globalIdx}`;
+    const key = isDictation ? `dictation-0-${DATA.dictation.indexOf(item)}` : `${state.tab}-${item.u}-${DATA[state.tab].indexOf(item)}`;
     delete state.answers[key];
   });
   saveProgress();
