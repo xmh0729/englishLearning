@@ -141,6 +141,12 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   .print-sheet .print-item { padding:8px 0; border-bottom:1px dashed #ccc; page-break-inside:avoid; }
   .print-sheet .print-item .prompt { font-size:14px; }
   .print-sheet .print-item .write-line { border-bottom:1px solid #999; height:32px; margin-top:4px; }
+  .print-grid { display:grid; gap:4px 12px; }
+  .print-grid.cols-5 { grid-template-columns:repeat(5, 1fr); }
+  .print-grid.cols-3 { grid-template-columns:repeat(3, 1fr); }
+  .print-cell { page-break-inside:avoid; padding:4px 0; }
+  .print-cell .prompt { font-size:12px; }
+  .print-cell .write-line { border-bottom:1px solid #999; height:24px; margin-top:2px; }
   body { background:#fff; font-size:12px; }
 }
 .print-sheet { display:none; }
@@ -1225,19 +1231,21 @@ function doPrint(type) {
     // Words
     const words = getItems('words');
     if (words.length) {
-      html += `<h2>一、单词（共${words.length}个）</h2>`;
+      html += `<h2>一、单词（共${words.length}个）</h2><div class="print-grid cols-5">`;
       words.forEach((w, i) => {
-        html += `<div class="print-item"><span class="prompt">${i+1}. ${w.zh}</span><div class="write-line"></div></div>`;
+        html += `<div class="print-cell"><span class="prompt">${i+1}. ${w.zh}</span><div class="write-line"></div></div>`;
       });
+      html += `</div>`;
     }
 
     // Phrases
     const phrases = getItems('phrases');
     if (phrases.length) {
-      html += `<h2>二、词组（共${phrases.length}个）</h2>`;
+      html += `<h2>二、词组（共${phrases.length}个）</h2><div class="print-grid cols-3">`;
       phrases.forEach((p, i) => {
-        html += `<div class="print-item"><span class="prompt">${i+1}. ${p.zh}</span><div class="write-line"></div></div>`;
+        html += `<div class="print-cell"><span class="prompt">${i+1}. ${p.zh}</span><div class="write-line"></div></div>`;
       });
+      html += `</div>`;
     }
 
     // Sentences
@@ -1245,7 +1253,7 @@ function doPrint(type) {
     if (sentences.length) {
       html += `<h2>三、句子（共${sentences.length}个）</h2>`;
       sentences.forEach((s, i) => {
-        html += `<div class="print-item"><span class="prompt">${i+1}. ${s.zh}</span><div class="write-line"></div><div class="write-line"></div></div>`;
+        html += `<div class="print-item"><span class="prompt">${i+1}. ${s.zh}</span><div class="write-line"></div></div>`;
       });
     }
   } else {
