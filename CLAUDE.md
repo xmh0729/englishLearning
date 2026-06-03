@@ -9,8 +9,10 @@
 | File | Purpose |
 |------|---------|
 | `6B_review.html` | 6B 复习网站主文件（单文件应用，包含 HTML/CSS/JS 和所有数据） |
-| `6B知识梳理单.html` | 6B 原始学习资料（数据源） |
-| `6B知识梳理单.pdf` | 6B 原始学习资料 PDF 版 |
+| `6B知识梳理单.html` | 6B U1-U6 原始学习资料（数据源） |
+| `6B知识梳理单.pdf` | 6B U1-U6 原始学习资料 PDF 版 |
+| `6B U7 知识梳理.docx` | 6B U7 Summer holiday 知识梳理（数据源） |
+| `6B U8 知识梳理.docx` | 6B U8 Our dreams 知识梳理（数据源） |
 
 ## Architecture
 
@@ -56,7 +58,7 @@ resetProgress()     -- 重置所有进度
 {u: <unit_number>, en: "<english>", zh: "<chinese>"}
 ```
 
-- `u`: 单元编号（整数，如 1-6）
+- `u`: 单元编号（整数，如 1-8）
 - `en`: 英文内容（用户需要输入的答案）
 - `zh`: 中文提示（显示给用户的内容）
 
