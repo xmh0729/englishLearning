@@ -25,7 +25,7 @@
 ### JS 代码结构（按出现顺序）
 
 ```
-DATA 对象           -- 所有练习数据（words / phrases / sentences / grammar / dictation）
+DATA 对象           -- 所有练习数据（words / phrases / sentences / grammar / dictation / grammarReview）
 state 对象          -- 当前 UI 状态（unit / tab / mode / answers）
 loadProgress()      -- 从 localStorage 恢复进度
 saveProgress()      -- 持久化进度到 localStorage
@@ -47,6 +47,11 @@ doPrint()           -- 生成练习卷并触发 window.print()
 showDictationPrint()      -- 专项默写打印：勾选界面
 toggleAllDictationCheckboxes() -- 全选/取消全选默写勾选框
 doPrintDictation()        -- 生成专项默写练习卷并触发打印
+renderGrammarReview()     -- 渲染语法汇总练习（跨 Unit 1-8 综合复习）
+submitGrammarReview()     -- 提交语法汇总选择题
+submitGrammarReviewFill() -- 提交语法汇总填空题
+clearGrammarReviewProgress() -- 重做全部语法汇总
+doPrintGrammarReview()    -- 生成语法汇总练习卷并触发打印
 resetProgress()     -- 重置所有进度
 ```
 
@@ -73,6 +78,17 @@ resetProgress()     -- 重置所有进度
 - `zh`: 中文提示（显示给用户）
 
 专项默写是跨单元的综合句子练习，独立于 unit 分组。
+
+### grammarReview（语法汇总）
+
+```js
+{u: <unit>, topic: "<语法专题>", type: "choice"|"fill", q: "...", opts: [...], ans: <索引或字符串>, exp: "..."}
+```
+
+跨 Unit 1-8 的综合语法复习题（数据源：`六年级下册语法归纳.doc` 的"学以致用"+各单元知识点）。
+- `topic`: 语法专题标签（如"形容词与副词"、"be going to"），用于展示分组
+- 字段同 grammar；通过侧边栏「📋 语法汇总」入口进入，支持在线练习和打印（仅题目）
+- 进度 key 格式：`greview-<索引>`
 
 ### grammar
 

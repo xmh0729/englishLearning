@@ -182,6 +182,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   <button class="nav-item" onclick="selectUnit(8)">Unit 8 Our dreams</button>
   <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:12px;padding-top:12px;">
     <button class="nav-item" onclick="selectUnit('dictation')">📝 专项默写</button>
+    <button class="nav-item" onclick="selectUnit('grammarReview')">📋 语法汇总</button>
   </div>
   <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:12px;padding-top:12px;">
     <button class="nav-item" onclick="resetProgress()" style="color:#e74c3c;">重置进度</button>
@@ -849,6 +850,63 @@ dictation: [
   {id:49, en:"What is your dream? I want to see your dreams come true!", zh:"你的梦想是什么？我希望看到你的梦想成真！"},
   {id:50, en:"Miss Li is asking the children about their dreams.", zh:"李老师正在询问孩子们他们的梦想。"},
   {id:51, en:"I want to be a football player. Because it is interesting.", zh:"我想成为一名足球运动员。因为它很有趣。"}
+],
+grammarReview: [
+  // ===== Unit 1 形容词与方式副词 / 系动词 =====
+  {u:1, topic:"形容词与副词", type:"fill", q:"The boy was excited. He laughed ____. (excited)", ans:"excitedly", exp:"修饰动词 laughed 要用方式副词，excited → excitedly。"},
+  {u:1, topic:"形容词与副词", type:"choice", q:"Lily is a ____ girl, she laughs ____.", opts:["happily, happily","happily, happy","happy, happily","happy, happy"], ans:2, exp:"修饰名词 girl 用形容词 happy；修饰动词 laughs 用副词 happily。"},
+  {u:1, topic:"系动词+形容词", type:"fill", q:"Can't you keep the children ____ (quiet)?", ans:"quiet", exp:"keep 是系动词，后面跟形容词 quiet（安静的）。"},
+  {u:1, topic:"形容词与副词", type:"fill", q:"The old man looked at them ____ (angry) and couldn't say a word.", ans:"angrily", exp:"修饰动词 looked 用副词，angry → angrily（去 y 变 i 加 ly）。"},
+  {u:1, topic:"形容词变副词", type:"choice", q:"true 的副词形式是？", opts:["truely","truly","truley","trully"], ans:1, exp:"以 e 结尾且为元音+e：去 e 加 ly，true → truly。"},
+
+  // ===== Unit 2 副词 / 同形 / in order =====
+  {u:2, topic:"形容词副词同形", type:"choice", q:"good 的副词形式是？", opts:["goodly","well","goodily","welly"], ans:1, exp:"good 的副词形式是 well（不规则变化）。"},
+  {u:2, topic:"系动词", type:"choice", q:"You ____ so tired. Do you feel ____?", opts:["looks; sleepy","look; sleepy","look; sleep","looked; sleep"], ans:1, exp:"主语 You 用 look 原形；feel 是系动词，后跟形容词 sleepy。"},
+  {u:2, topic:"in order", type:"fill", q:"Look, your room is messy. You should put your things in o____.", ans:"order", exp:"put...in order 把……整理好。"},
+  {u:2, topic:"物主代词", type:"choice", q:"Tom usually ____ his teeth in the morning.", opts:["brush","brushes","brushing","brushed"], ans:1, exp:"主语 Tom 第三人称单数，brush 要加 es → brushes。"},
+  {u:2, topic:"形容词副词同形", type:"fill", q:"Wang Bing knows Liu Tao very ____ (好). (well/good)", ans:"well", exp:"修饰动词 knows 用副词 well。"},
+
+  // ===== Unit 3 名词 / 数量词 =====
+  {u:3, topic:"系动词", type:"choice", q:"Everyone should keep ____.", opts:["healthy","healthily","health","healths"], ans:0, exp:"keep 是系动词，后跟形容词 healthy（健康的）。"},
+  {u:3, topic:"不可数名词", type:"choice", q:"Here ____ a lot of meat for the party.", opts:["are","is","were","have"], ans:1, exp:"meat 是不可数名词，be 动词用 is。"},
+  {u:3, topic:"too much/many", type:"choice", q:"He shouldn't drink so ____ cola, or he'll be ____.", opts:["much；unhealthy","a lot of；healthy","many；unhealthy","much；healthy"], ans:0, exp:"cola 不可数用 much；喝太多可乐会不健康 unhealthy。"},
+  {u:3, topic:"a few/a little", type:"choice", q:"I will have ____ vegetables and ____ rice for dinner.", opts:["a lot, little","few, a lot","a few, a little","a little, a few"], ans:2, exp:"vegetables 可数复数用 a few；rice 不可数用 a little。"},
+  {u:3, topic:"不可数名词", type:"choice", q:"There ____ a lot of fruit on the table.", opts:["is","are","were","have"], ans:0, exp:"fruit 作\"水果\"总称时不可数，be 动词用 is。"},
+
+  // ===== Unit 4 情态动词 / look / safe / 交通 =====
+  {u:4, topic:"情态动词", type:"fill", q:"You mustn't ____ (cross) the road now.", ans:"cross", exp:"mustn't 后跟动词原形 cross。"},
+  {u:4, topic:"情态动词", type:"choice", q:"____ I play computer games? No, you ____. It's late.", opts:["Can, mustn't","Must, mustn't","Must, can't","Can, can't"], ans:0, exp:"请求许可用 Can；表示禁止用 mustn't。"},
+  {u:4, topic:"safe家族", type:"choice", q:"What do you know about road ____? We must follow the rules and stay ____.", opts:["safe, safely","safety, safe","safety, safely","safe, safety"], ans:1, exp:"road safety 道路安全（名词）；stay 是系动词，后跟形容词 safe。"},
+  {u:4, topic:"look短语", type:"choice", q:"____, the bus is coming.", opts:["Look out","Look for","Look after","Look at"], ans:0, exp:"Look out! 当心！（单独成句不跟宾语）。"},
+  {u:4, topic:"情态动词", type:"fill", q:"Let the old man ____ (get) on the bus first.", ans:"get", exp:"let sb. do sth.，let 后跟动词原形 get。"},
+
+  // ===== Unit 5 be going to =====
+  {u:5, topic:"be going to", type:"choice", q:"Bobby ____ a king for the play.", opts:["is going to have","will going to be","is going to be","will be going to be"], ans:2, exp:"be going to + 动词原形；扮演角色用 be，即 is going to be。"},
+  {u:5, topic:"be going to", type:"fill", q:"We ____ (be going to have) a party soon.", ans:"are going to have", exp:"主语 We 用 are：are going to have a party。"},
+  {u:5, topic:"选择疑问句", type:"choice", q:"—Are you a doctor or a teacher? —____", opts:["Yes, I am.","No, I'm not.","I'm a teacher.","I do."], ans:2, exp:"选择疑问句不能用 Yes/No 回答，要给出具体选择。"},
+  {u:5, topic:"be going to", type:"fill", q:"____ is the party going to begin? At three o'clock.", ans:"When", exp:"答语是时间 at three o'clock，对时间提问用 When。"},
+  {u:5, topic:"take/bring", type:"choice", q:"It's going to rain. ____ your umbrella with you.", opts:["Bring","Take","Brings","Taking"], ans:1, exp:"从说话人处带走某物用 take。"},
+
+  // ===== Unit 6 will / 国家与人 / 职业名词 =====
+  {u:6, topic:"will将来时", type:"choice", q:"There ____ a football game tomorrow afternoon.", opts:["was","will be","is going to have","will have"], ans:1, exp:"There be 句型的将来时：there will be。"},
+  {u:6, topic:"will将来时", type:"choice", q:"I will learn about ____ on the Internet.", opts:["to cook","cooking","cooked","cook"], ans:1, exp:"learn about + 名词/动名词，cook → cooking。"},
+  {u:6, topic:"will将来时", type:"fill", q:"We ____ (not fly) kites next weekend. (用 will 缩写)", ans:"won't fly", exp:"will not = won't，后跟动词原形：won't fly。"},
+  {u:6, topic:"国家与语言", type:"choice", q:"法国人/法语对应的单词是？", opts:["French","Frenchman","France","Franch"], ans:0, exp:"France 法国，French 法国人/法语。"},
+  {u:6, topic:"职业名词", type:"fill", q:"Many ____ (visit) come to China every year.", ans:"visitors", exp:"visit → visitor 参观者（加 or），此处用复数 visitors。"},
+
+  // ===== Unit 7 will / for / 疑问词 =====
+  {u:7, topic:"will将来时", type:"choice", q:"Will you stay in Shanghai for three months? —No, ____.", opts:["I won't","you will","you won't","I don't"], ans:0, exp:"Will you...? 否定回答：No, I won't."},
+  {u:7, topic:"will将来时", type:"fill", q:"Will you ____ (bring) me some food?", ans:"bring", exp:"Will + 主语 + 动词原形，用 bring。"},
+  {u:7, topic:"for用法", type:"choice", q:"My father will work there ____ one year.", opts:["with","in","for","at"], ans:2, exp:"for + 一段时间，表示持续多久。"},
+  {u:7, topic:"特殊疑问词", type:"choice", q:"____ will you go for the summer holiday? —I will go to London.", opts:["What","Where","When","How"], ans:1, exp:"答语是地点 London，提问用 Where。"},
+  {u:7, topic:"travel", type:"fill", q:"I want to be a traveller because I like ____ (travel) around the world.", ans:"travelling", exp:"like doing sth.，travel 双写 l 加 ing → travelling。"},
+
+  // ===== Unit 8 want to / 职业 / 动名词 =====
+  {u:8, topic:"want to do", type:"fill", q:"Sam wants ____ (read) English every morning.", ans:"to read", exp:"want to do sth.（想做某事），用 to read。"},
+  {u:8, topic:"职业名词", type:"fill", q:"Many ____ (science) are talking about how to protect the Earth.", ans:"scientists", exp:"science → scientist 科学家（加 ist），此处用复数 scientists。"},
+  {u:8, topic:"动名词作主语", type:"fill", q:"Swimming ____ (make) me healthy and strong.", ans:"makes", exp:"动名词作主语视为单数，谓语用三单 makes。"},
+  {u:8, topic:"want to be", type:"choice", q:"Many years ago, I ____ to be a teacher. But now ____ a worker.", opts:["wanted; I was","want; I am","wanted; I'm","want; I was"], ans:2, exp:"many years ago 用过去式 wanted；now 用现在时 I'm。"},
+  {u:8, topic:"特殊疑问词", type:"choice", q:"对 \"Because she wants to help sick people.\" 提问，用哪个疑问词？", opts:["What","Why","When","How"], ans:1, exp:"回答以 Because 开头，对原因提问用 Why。"}
 ]
 };
 
@@ -887,15 +945,17 @@ function saveProgress() {
 // ========== NAVIGATION ==========
 function selectUnit(u) {
   state.unit = u;
-  if (u === 'dictation') {
-    state.tab = 'dictation';
+  if (u === 'dictation' || u === 'grammarReview') {
+    state.tab = u;
     document.querySelector('.header').style.display = 'none';
   } else {
-    if (state.tab === 'dictation') state.tab = 'words';
+    if (state.tab === 'dictation' || state.tab === 'grammarReview') state.tab = 'words';
     document.querySelector('.header').style.display = '';
   }
   document.querySelectorAll('.sidebar .nav-item').forEach((el, i) => {
-    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i) || (u === 'dictation' && el.textContent.includes('专项默写')));
+    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i)
+      || (u === 'dictation' && el.textContent.includes('专项默写'))
+      || (u === 'grammarReview' && el.textContent.includes('语法汇总')));
   });
   if (window.innerWidth < 768) toggleSidebar();
   render();
@@ -980,6 +1040,7 @@ function render() {
   const el = document.getElementById('content');
   if (state.tab === 'print') return renderPrint(el);
   if (state.tab === 'grammar') return renderGrammar(el);
+  if (state.tab === 'grammarReview') return renderGrammarReview(el);
   if (state.tab === 'dictation') return renderDictation(el);
   renderDictation(el);
 }
@@ -1239,6 +1300,140 @@ function clearGrammarProgress() {
   });
   saveProgress();
   render();
+}
+
+// ========== GRAMMAR REVIEW (语法汇总) ==========
+function renderGrammarReview(el) {
+  const items = DATA.grammarReview;
+  const total = items.length;
+  const answered = items.filter((item, idx) => state.grammarAnswers[`greview-${idx}`] !== undefined).length;
+  const correct = items.filter((item, idx) => state.grammarAnswers[`greview-${idx}`]?.correct).length;
+  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
+
+  let html = `
+    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <div class="stats">
+      <span>共 ${total} 题（覆盖 Unit 1-8）</span>
+      <span>已完成 ${answered}/${total}</span>
+      <span>正确率 ${answered > 0 ? Math.round(correct/answered*100) : 0}%</span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-warning" onclick="clearGrammarReviewProgress()">重做全部</button>
+      <button class="btn btn-outline" onclick="doPrintGrammarReview()">🖨️ 打印练习卷</button>
+    </div>
+  `;
+
+  items.forEach((item, idx) => {
+    const key = `greview-${idx}`;
+    const answered = state.grammarAnswers[key];
+
+    html += `<div class="grammar-card">`;
+    html += `<div class="label">Unit ${item.u} · ${item.topic} · ${item.type==='choice'?'选择题':'填空题'}</div>`;
+    html += `<div class="question">${idx+1}. ${item.q}</div>`;
+
+    if (item.type === 'choice') {
+      html += `<div class="options">`;
+      item.opts.forEach((opt, oi) => {
+        let cls = '';
+        if (answered) {
+          cls = 'disabled';
+          if (oi === answered.selected) cls += answered.correct ? ' selected-correct' : ' selected-wrong';
+          if (oi === item.ans && !answered.correct) cls += ' show-correct';
+        }
+        html += `<button class="option-btn ${cls}" onclick="submitGrammarReview(${idx},'${key}',${oi})">${String.fromCharCode(65+oi)}. ${opt}</button>`;
+      });
+      html += `</div>`;
+    } else {
+      const fillId = `greview-fill-${idx}`;
+      html += `<div class="input-row" style="margin-top:8px;">`;
+      html += `<input type="text" class="fill-input ${answered ? (answered.correct ? 'correct' : 'wrong') : ''}"
+        id="${fillId}" placeholder="填写答案..."
+        ${answered ? `disabled value="${answered.userInput || ''}"` : ''}
+        onkeydown="if(event.key==='Enter')submitGrammarReviewFill(${idx},'${key}','${fillId}')">`;
+      if (!answered) {
+        html += `<button class="btn btn-primary" onclick="submitGrammarReviewFill(${idx},'${key}','${fillId}')">确认</button>`;
+      }
+      html += `</div>`;
+      if (answered && !answered.correct) {
+        html += `<div class="answer-display wrong" style="margin-top:6px;">正确答案：${item.ans}</div>`;
+      }
+    }
+
+    html += `<div class="explanation" id="greview-exp-${idx}" style="${answered ? 'display:block' : ''}">${item.exp}</div>`;
+    html += `</div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function submitGrammarReview(idx, key, selected) {
+  if (state.grammarAnswers[key]) return;
+  const item = DATA.grammarReview[idx];
+  const correct = selected === item.ans;
+  state.grammarAnswers[key] = { correct, selected };
+  saveProgress();
+  render();
+}
+
+function submitGrammarReviewFill(idx, key, fillId) {
+  if (state.grammarAnswers[key]) return;
+  const input = document.getElementById(fillId);
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const item = DATA.grammarReview[idx];
+  const correct = normalize(val) === normalize(item.ans);
+  state.grammarAnswers[key] = { correct, userInput: val };
+  saveProgress();
+  render();
+}
+
+function clearGrammarReviewProgress() {
+  DATA.grammarReview.forEach((item, idx) => {
+    delete state.grammarAnswers[`greview-${idx}`];
+  });
+  saveProgress();
+  render();
+}
+
+function doPrintGrammarReview() {
+  const el = document.getElementById('content');
+  const items = DATA.grammarReview;
+  const choices = items.filter(g => g.type === 'choice');
+  const fills = items.filter(g => g.type === 'fill');
+
+  let html = `<h1 style="text-align:center;font-size:20px;margin-bottom:4px;">6B英语复习 · 语法汇总练习卷</h1>`;
+  html += `<p style="text-align:center;font-size:13px;color:#666;margin-bottom:16px;">覆盖 Unit 1-8 · 姓名：__________ · 日期：__________</p>`;
+
+  let n = 0;
+  if (choices.length) {
+    html += `<h2>一、单项选择（共${choices.length}题）</h2>`;
+    choices.forEach((g) => {
+      n++;
+      html += `<div class="print-item"><span class="prompt">${n}. (　　) ${g.q}</span><br>`;
+      g.opts.forEach((o, oi) => {
+        html += `<span style="margin-left:16px;">${String.fromCharCode(65+oi)}. ${o}</span>&nbsp;&nbsp;`;
+      });
+      html += `</div>`;
+    });
+  }
+
+  if (fills.length) {
+    html += `<h2>二、用所给词的适当形式填空（共${fills.length}题）</h2>`;
+    fills.forEach((g) => {
+      n++;
+      html += `<div class="print-item"><span class="prompt">${n}. ${g.q}</span><div class="write-line"></div></div>`;
+    });
+  }
+
+  el.innerHTML = `
+    <div class="controls no-print">
+      <button class="btn btn-outline" onclick="render()">← 返回练习</button>
+      <span style="color:var(--text-light);font-size:13px;align-self:center;">已生成练习卷，下方点击浏览器打印或按 Ctrl/Cmd+P</span>
+    </div>
+    <div class="print-sheet" id="print-sheet" style="display:block;">${html}</div>
+  `;
+  setTimeout(() => window.print(), 200);
 }
 
 // ========== PRINT ==========
