@@ -9,10 +9,16 @@
 | File | Purpose |
 |------|---------|
 | `6B_review.html` | 6B 复习网站主文件（单文件应用，包含 HTML/CSS/JS 和所有数据） |
+| `7A单词_review.html` | 7A 复习专题（单文件应用；含单词/词组/句子/语法/打印五大模块） |
+| `7A单词/` | 7A wordlist 截图数据源（1-6.jpeg，单词 + 词组） |
+| `7A句子/` | 7A Notes 截图数据源（132-139.jpeg，重点句子 + 讲解短语） |
+| `7A语法/` | 7A Grammar check 截图数据源（140-148.jpeg，每单元语法讲解） |
 | `6B知识梳理单.html` | 6B U1-U6 原始学习资料（数据源） |
 | `6B知识梳理单.pdf` | 6B U1-U6 原始学习资料 PDF 版 |
 | `6B U7 知识梳理.docx` | 6B U7 Summer holiday 知识梳理（数据源） |
 | `6B U8 知识梳理.docx` | 6B U8 Our dreams 知识梳理（数据源） |
+
+> `7A单词_review.html` 由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab，去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`。数据规模：words 351 / phrases 71 / sentences 55 / grammar 69（53 选择 + 16 填空），均覆盖 Unit 1-8。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
 
 ## Architecture
 
@@ -162,6 +168,14 @@ const DATA = {
 - 语法说明在 `<h2>四、 语法</h2>` 或 `知识点总结` 之后（需人工编写为练习题）
 
 提取数据时让 Claude 读取源文件并按 DATA 格式输出 JSON。语法练习题需要根据语法说明手动编写，每个语法专题建议 8-10 题（6 选择 + 2-4 填空）。
+
+**截图数据源（7A 方式）**：若数据源是教材截图（如 `7A单词/`、`7A句子/`、`7A语法/` 中的 .jpeg），让 Claude 直接用 Read 工具读取图片转写：
+
+- wordlist 截图：headword（单个词，含连字符词如 `paper-cutting`）归入 `words`，缩进的多词条目（如 `be good at`、`come true`）归入 `phrases`；忽略音标和页码；中文取主要释义、去掉词性缩写。
+- Notes / 重点句截图：编号的核心句归入 `sentences`，讲解中明确教授的短语补入 `phrases`（需与 wordlist 已有短语去重）。
+- Grammar check 截图：仅提供语法讲解，不含练习——练习题须据此手写。
+
+转写量大时可并行派发子代理（每张图一个），返回结构化 JSON 后合并。完成后用 node 校验：DATA 可解析、单元内无重复、选择题 `ans` 索引在选项范围内、`<script>` 语法 OK。
 
 ## Conventions
 

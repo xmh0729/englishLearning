@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7A英语单词复习</title>
+<style>
+:root {
+  --primary: #2980b9;
+  --primary-dark: #1a5276;
+  --success: #27ae60;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --bg: #f0f2f5;
+  --card: #fff;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --border: #dfe6e9;
+  --sidebar-w: 220px;
+  --header-h: 56px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; left:0; top:0; bottom:0; width: var(--sidebar-w);
+  background: var(--primary-dark); color:#fff; padding-top:16px; z-index:100;
+  overflow-y:auto; transition: transform .3s;
+}
+.sidebar h2 { font-size:18px; padding:0 20px 12px; border-bottom:1px solid rgba(255,255,255,.15); margin-bottom:8px; }
+.sidebar .nav-item {
+  display:block; padding:10px 20px; cursor:pointer; font-size:14px;
+  transition: background .2s; border:none; background:none; color:#fff; width:100%; text-align:left;
+}
+.sidebar .nav-item:hover, .sidebar .nav-item.active { background: rgba(255,255,255,.15); }
+.sidebar .nav-item.active { border-left:3px solid #fff; font-weight:600; }
+
+/* Mobile hamburger */
+.hamburger {
+  display:none; position:fixed; top:10px; left:10px; z-index:200;
+  background:var(--primary-dark); color:#fff; border:none; padding:8px 12px; border-radius:6px; font-size:20px; cursor:pointer;
+}
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:99; }
+
+/* Main area */
+.main { margin-left: var(--sidebar-w); min-height:100vh; }
+.header {
+  background: var(--card); height: var(--header-h); display:flex; align-items:center;
+  padding:0 24px; border-bottom:1px solid var(--border); gap:8px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:50;
+}
+.tab-btn {
+  padding:8px 16px; border:none; background:none; cursor:pointer; font-size:14px; color:var(--text-light);
+  border-bottom:2px solid transparent; transition: all .2s;
+}
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+.content { padding:24px; max-width:900px; margin:0 auto; }
+
+/* Progress bar */
+.progress-bar { background:var(--border); border-radius:10px; height:8px; margin-bottom:16px; overflow:hidden; }
+.progress-bar .fill { height:100%; background:var(--success); border-radius:10px; transition: width .4s; }
+.stats { display:flex; gap:16px; margin-bottom:20px; font-size:14px; color:var(--text-light); flex-wrap:wrap; }
+.stats span { background:var(--card); padding:4px 12px; border-radius:20px; }
+
+/* Controls */
+.controls { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+.btn {
+  padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-size:13px; transition:all .2s;
+}
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { background:#2471a3; }
+.btn-success { background:var(--success); color:#fff; }
+.btn-success:hover { background:#219a52; }
+.btn-warning { background:var(--warning); color:#fff; }
+.btn-warning:hover { background:#d68910; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-danger:hover { background:#c0392b; }
+.btn-outline { background:none; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { background:var(--bg); }
+.btn-outline.active { border-color:var(--primary); color:var(--primary); background:rgba(41,128,185,.08); }
+
+/* Card */
+.card {
+  background:var(--card); border-radius:12px; padding:24px; margin-bottom:16px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08); border:1px solid var(--border);
+}
+.card .label { font-size:12px; color:var(--text-light); margin-bottom:4px; }
+.card .zh { font-size:18px; margin-bottom:12px; line-height:1.5; }
+.card .input-row { display:flex; gap:8px; align-items:center; }
+.card input[type=text] {
+  flex:1; padding:10px 14px; border:2px solid var(--border); border-radius:8px; font-size:16px;
+  outline:none; transition: border-color .2s;
+}
+.card input[type=text]:focus { border-color:var(--primary); }
+.card input.correct { border-color:var(--success); background:#eafaf1; }
+.card input.wrong { border-color:var(--danger); background:#fdedec; }
+.answer-display { margin-top:8px; font-size:14px; }
+.answer-display.correct { color:var(--success); }
+.answer-display.wrong { color:var(--danger); }
+
+/* TTS button */
+.tts-btn {
+  width:40px; height:40px; border:none; background:var(--primary); color:#fff;
+  border-radius:50%; font-size:18px; cursor:pointer; flex-shrink:0; transition:background .2s;
+}
+.tts-btn:hover { background:#2471a3; }
+
+/* Grammar */
+.grammar-card { background:var(--card); border-radius:12px; padding:20px; margin-bottom:12px; border:1px solid var(--border); }
+.grammar-card .question { font-size:16px; margin-bottom:12px; line-height:1.6; }
+.grammar-card .options { display:flex; flex-direction:column; gap:8px; }
+.grammar-card .option-btn {
+  padding:10px 16px; border:2px solid var(--border); border-radius:8px; background:var(--card);
+  cursor:pointer; font-size:14px; text-align:left; transition:all .2s;
+}
+.grammar-card .option-btn:hover { border-color:var(--primary); background:rgba(41,128,185,.05); }
+.grammar-card .option-btn.selected-correct { border-color:var(--success); background:#eafaf1; }
+.grammar-card .option-btn.selected-wrong { border-color:var(--danger); background:#fdedec; }
+.grammar-card .option-btn.show-correct { border-color:var(--success); background:#eafaf1; }
+.grammar-card .option-btn.disabled { pointer-events:none; opacity:.7; }
+.grammar-card .explanation { margin-top:10px; padding:10px; background:#fef9e7; border-radius:6px; font-size:13px; color:#7d6608; display:none; }
+.grammar-card .fill-input { width:200px; padding:8px 12px; border:2px solid var(--border); border-radius:6px; font-size:15px; outline:none; }
+.grammar-card .fill-input:focus { border-color:var(--primary); }
+.grammar-card .fill-input.correct { border-color:var(--success); background:#eafaf1; }
+.grammar-card .fill-input.wrong { border-color:var(--danger); background:#fdedec; }
+
+/* Print styles */
+@media print {
+  .sidebar, .hamburger, .overlay, .header, .controls, .progress-bar, .stats, .btn, .tts-btn, .no-print { display:none!important; }
+  .main { margin-left:0!important; }
+  .content { padding:10px; max-width:100%; }
+  .print-sheet { display:block!important; }
+  .print-sheet h2 { font-size:16px; margin:16px 0 8px; border-bottom:1px solid #333; padding-bottom:4px; }
+  .print-sheet .print-item { padding:8px 0; border-bottom:1px dashed #ccc; page-break-inside:avoid; }
+  .print-sheet .print-item .prompt { font-size:14px; }
+  .print-sheet .print-item .write-line { border-bottom:1px solid #999; height:32px; margin-top:4px; }
+  .print-grid { display:grid; gap:4px 12px; }
+  .print-grid.cols-5 { grid-template-columns:repeat(5, 1fr); }
+  .print-grid.cols-3 { grid-template-columns:repeat(3, 1fr); }
+  .print-cell { page-break-inside:avoid; padding:4px 0; }
+  .print-cell .prompt { font-size:12px; }
+  .print-cell .write-line { border-bottom:1px solid #999; height:24px; margin-top:2px; }
+  body { background:#fff; font-size:12px; }
+}
+.print-sheet { display:none; }
+
+/* Responsive */
+@media (max-width:768px) {
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .overlay.show { display:block; }
+  .hamburger { display:block; }
+  .main { margin-left:0; }
+  .header { padding:0 12px 0 50px; }
+  .content { padding:16px; }
+  .card .zh { font-size:16px; }
+}
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <h2>📖 7A单词复习</h2>
+  <button class="nav-item active" onclick="selectUnit('all')">全部单元</button>
+  <button class="nav-item" onclick="selectUnit(1)">Unit 1 This is me!</button>
+  <button class="nav-item" onclick="selectUnit(2)">Unit 2 Hobbies</button>
+  <button class="nav-item" onclick="selectUnit(3)">Unit 3 Welcome to our school</button>
+  <button class="nav-item" onclick="selectUnit(4)">Unit 4 My day</button>
+  <button class="nav-item" onclick="selectUnit(5)">Unit 5 Food and lifestyle</button>
+  <button class="nav-item" onclick="selectUnit(6)">Unit 6 Fashion</button>
+  <button class="nav-item" onclick="selectUnit(7)">Unit 7 Shopping</button>
+  <button class="nav-item" onclick="selectUnit(8)">Unit 8 Special days</button>
+  <div style="border-top:1px solid rgba(255,255,255,.15);margin-top:12px;padding-top:12px;">
+    <button class="nav-item" onclick="resetProgress()" style="color:#e74c3c;">重置进度</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="header">
+    <button class="tab-btn active" onclick="selectTab('words')">单词听写</button>
+    <button class="tab-btn" onclick="selectTab('phrases')">词组听写</button>
+    <button class="tab-btn" onclick="selectTab('sentences')">句子听写</button>
+    <button class="tab-btn" onclick="selectTab('grammar')">语法练习</button>
+    <button class="tab-btn" onclick="selectTab('print')">打印练习</button>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ========== DATA ==========
+const DATA = {
+words: [
+  // Unit 1 This is me!
+  {u:1, en:"greet", zh:"和(某人)打招呼"},
+  {u:1, en:"introduce", zh:"介绍"},
+  {u:1, en:"glad", zh:"高兴的"},
+  {u:1, en:"same", zh:"同一的，相同的"},
+  {u:1, en:"hobby", zh:"业余爱好"},
+  {u:1, en:"grade", zh:"年级，等级"},
+  {u:1, en:"classmate", zh:"同班同学"},
+  {u:1, en:"friendly", zh:"友好的"},
+  {u:1, en:"full", zh:"(有)大量的，满的"},
+  {u:1, en:"energy", zh:"精力，活力"},
+  {u:1, en:"slim", zh:"苗条的"},
+  {u:1, en:"polite", zh:"有礼貌的"},
+  {u:1, en:"smart", zh:"聪明的，智能的"},
+  {u:1, en:"ready", zh:"准备好的"},
+  {u:1, en:"other", zh:"别的，其他的"},
+  {u:1, en:"interested", zh:"感兴趣的"},
+  {u:1, en:"looks", zh:"相貌，容貌"},
+  {u:1, en:"character", zh:"性格"},
+  {u:1, en:"both", zh:"两个都"},
+  {u:1, en:"enjoy", zh:"享受，喜爱"},
+  {u:1, en:"pretty", zh:"漂亮的，标致的"},
+  {u:1, en:"shy", zh:"腼腆的"},
+  {u:1, en:"only", zh:"只，仅"},
+  {u:1, en:"stay", zh:"保持，停留"},
+  {u:1, en:"match", zh:"比赛"},
+  {u:1, en:"luck", zh:"运气，好运"},
+  {u:1, en:"chess", zh:"国际象棋"},
+  {u:1, en:"problem", zh:"难题，困难"},
+  {u:1, en:"weekend", zh:"周末"},
+  {u:1, en:"fun", zh:"乐趣，开心"},
+  // Unit 2 Hobbies
+  {u:2, en:"jog", zh:"慢跑"},
+  {u:2, en:"paint", zh:"绘画，上油漆"},
+  {u:2, en:"paper-cutting", zh:"剪纸"},
+  {u:2, en:"fit", zh:"健康的"},
+  {u:2, en:"around", zh:"围绕，到处"},
+  {u:2, en:"change", zh:"改变，变化"},
+  {u:2, en:"life", zh:"生命，生活"},
+  {u:2, en:"museum", zh:"博物馆"},
+  {u:2, en:"thing", zh:"东西"},
+  {u:2, en:"apart", zh:"分开"},
+  {u:2, en:"fix", zh:"修理，安装"},
+  {u:2, en:"endless", zh:"无穷无尽的"},
+  {u:2, en:"scientist", zh:"科学家"},
+  {u:2, en:"dream", zh:"梦想，梦"},
+  {u:2, en:"true", zh:"真正的，确实的"},
+  {u:2, en:"club", zh:"社团，俱乐部"},
+  {u:2, en:"member", zh:"成员"},
+  {u:2, en:"geography", zh:"地理(学)"},
+  {u:2, en:"p.m.", zh:"下午"},
+  {u:2, en:"volleyball", zh:"排球运动"},
+  {u:2, en:"each", zh:"每个，各自"},
+  {u:2, en:"once", zh:"一次"},
+  {u:2, en:"join", zh:"加入"},
+  {u:2, en:"meeting", zh:"集合，会议"},
+  {u:2, en:"sound", zh:"听起来"},
+  {u:2, en:"plan", zh:"打算，计划"},
+  {u:2, en:"questionnaire", zh:"调查表，问卷"},
+  {u:2, en:"role", zh:"角色"},
+  {u:2, en:"model", zh:"模范，模特儿"},
+  {u:2, en:"design", zh:"设计"},
+  {u:2, en:"skill", zh:"技能，技艺"},
+  {u:2, en:"painting", zh:"画作"},
+  {u:2, en:"artist", zh:"艺术家，画家"},
+  {u:2, en:"master", zh:"能手，大师"},
+  {u:2, en:"become", zh:"成为，开始变得"},
+  {u:2, en:"designer", zh:"设计师"},
+  {u:2, en:"would", zh:"想，愿意"},
+  {u:2, en:"future", zh:"未来"},
+  {u:2, en:"hope", zh:"希望"},
+  // Unit 3 Welcome to our school
+  {u:3, en:"gym", zh:"体育馆"},
+  {u:3, en:"building", zh:"楼房，建筑物"},
+  {u:3, en:"field", zh:"运动场"},
+  {u:3, en:"dining", zh:"吃饭"},
+  {u:3, en:"hall", zh:"礼堂"},
+  {u:3, en:"lab", zh:"实验室"},
+  {u:3, en:"part", zh:"部分"},
+  {u:3, en:"modern", zh:"现代的，先进的"},
+  {u:3, en:"bright", zh:"明亮的"},
+  {u:3, en:"everyone", zh:"每人，人人"},
+  {u:3, en:"perfect", zh:"完美的"},
+  {u:3, en:"spend", zh:"度过，花费"},
+  {u:3, en:"chat", zh:"闲聊"},
+  {u:3, en:"exciting", zh:"令人激动的"},
+  {u:3, en:"noticeboard", zh:"布告板，告示牌"},
+  {u:3, en:"gate", zh:"大门"},
+  {u:3, en:"news", zh:"新闻，消息"},
+  {u:3, en:"board", zh:"黑板，木板"},
+  {u:3, en:"like", zh:"像，例如"},
+  {u:3, en:"more", zh:"更多的"},
+  {u:3, en:"trust", zh:"相信"},
+  {u:3, en:"really", zh:"很，十分；真正地"},
+  {u:3, en:"soon", zh:"很快，马上"},
+  {u:3, en:"team", zh:"队，组"},
+  {u:3, en:"show", zh:"演出，展览，节目"},
+  {u:3, en:"grey", zh:"灰色的；灰色"},
+  {u:3, en:"different", zh:"不同的"},
+  {u:3, en:"thousand", zh:"一千"},
+  {u:3, en:"fact", zh:"事实"},
+  {u:3, en:"borrow", zh:"借"},
+  {u:3, en:"newspaper", zh:"报纸"},
+  {u:3, en:"magazine", zh:"杂志"},
+  {u:3, en:"else", zh:"其他的，别的"},
+  {u:3, en:"care", zh:"关心；照顾"},
+  {u:3, en:"event", zh:"公开活动，发生的事情"},
+  {u:3, en:"quite", zh:"相当；非常"},
+  {u:3, en:"large", zh:"大的"},
+  {u:3, en:"special", zh:"特殊的，特别的"},
+  // Unit 4 My day
+  {u:4, en:"a.m.", zh:"上午"},
+  {u:4, en:"activity", zh:"活动"},
+  {u:4, en:"housework", zh:"家务劳动"},
+  {u:4, en:"homework", zh:"家庭作业"},
+  {u:4, en:"weekday", zh:"工作日"},
+  {u:4, en:"usually", zh:"通常地"},
+  {u:4, en:"myself", zh:"我自己"},
+  {u:4, en:"first", zh:"第一；首先"},
+  {u:4, en:"term", zh:"学期"},
+  {u:4, en:"start", zh:"开始；开端"},
+  {u:4, en:"writer", zh:"作家"},
+  {u:4, en:"language", zh:"语言"},
+  {u:4, en:"amazing", zh:"令人惊奇的"},
+  {u:4, en:"biology", zh:"生物学"},
+  {u:4, en:"living", zh:"活的，活着的"},
+  {u:4, en:"nature", zh:"大自然，天性"},
+  {u:4, en:"practise", zh:"训练，练习"},
+  {u:4, en:"field", zh:"田，领域"},
+  {u:4, en:"trip", zh:"旅行"},
+  {u:4, en:"leave", zh:"离开；留下"},
+  {u:4, en:"pick", zh:"采摘；挑选"},
+  {u:4, en:"seldom", zh:"很少"},
+  {u:4, en:"tennis", zh:"网球运动"},
+  {u:4, en:"grow", zh:"生长，发育"},
+  {u:4, en:"tour", zh:"参观，旅行"},
+  {u:4, en:"website", zh:"网站"},
+  {u:4, en:"video", zh:"视频"},
+  {u:4, en:"outside", zh:"在(向)…外面"},
+  {u:4, en:"peace", zh:"平静，和平"},
+  {u:4, en:"quiet", zh:"安静的，宁静的"},
+  {u:4, en:"teamwork", zh:"团队合作"},
+  {u:4, en:"better", zh:"更好的"},
+  {u:4, en:"tiring", zh:"累人的"},
+  {u:4, en:"duty", zh:"职责，责任"},
+  {u:4, en:"area", zh:"区域；面积"},
+  {u:4, en:"through", zh:"通过；穿过"},
+  {u:4, en:"group", zh:"组，群"},
+  {u:4, en:"turn", zh:"(依次轮到的)机会"},
+  {u:4, en:"empty", zh:"倒空；空的"},
+  {u:4, en:"bin", zh:"垃圾桶"},
+  {u:4, en:"something", zh:"某事，某物"},
+  // Unit 5 Food and lifestyle
+  {u:5, en:"lifestyle", zh:"生活方式"},
+  {u:5, en:"cucumber", zh:"黄瓜"},
+  {u:5, en:"lemon", zh:"柠檬"},
+  {u:5, en:"watermelon", zh:"西瓜"},
+  {u:5, en:"pepper", zh:"甜椒，胡椒粉"},
+  {u:5, en:"chocolate", zh:"巧克力"},
+  {u:5, en:"beef", zh:"牛肉"},
+  {u:5, en:"carrot", zh:"胡萝卜"},
+  {u:5, en:"pork", zh:"猪肉"},
+  {u:5, en:"sweet", zh:"糖果；甜的"},
+  {u:5, en:"snack", zh:"点心，小吃"},
+  {u:5, en:"health", zh:"健康"},
+  {u:5, en:"delicious", zh:"美味的"},
+  {u:5, en:"important", zh:"重要的"},
+  {u:5, en:"diet", zh:"日常饮食"},
+  {u:5, en:"without", zh:"没有"},
+  {u:5, en:"pancake", zh:"烙饼，薄饼"},
+  {u:5, en:"tofu", zh:"豆腐"},
+  {u:5, en:"sugar", zh:"食糖"},
+  {u:5, en:"tooth", zh:"牙，齿"},
+  {u:5, en:"homebody", zh:"喜欢待在家里的人"},
+  {u:5, en:"mutton", zh:"羊肉"},
+  {u:5, en:"unhealthy", zh:"不健康的"},
+  {u:5, en:"need", zh:"需要"},
+  {u:5, en:"enough", zh:"足够的；足够地"},
+  {u:5, en:"less", zh:"较少的；少，较少"},
+  {u:5, en:"cheese", zh:"奶酪"},
+  {u:5, en:"piece", zh:"块，片"},
+  {u:5, en:"bowl", zh:"一碗(的量)；碗"},
+  {u:5, en:"salt", zh:"盐"},
+  {u:5, en:"packet", zh:"小袋，小包装"},
+  {u:5, en:"kilo", zh:"千克，公斤"},
+  {u:5, en:"carton", zh:"硬纸盒"},
+  {u:5, en:"bottle", zh:"瓶子；一瓶的量"},
+  {u:5, en:"maybe", zh:"也许，大概"},
+  {u:5, en:"than", zh:"比"},
+  {u:5, en:"almost", zh:"几乎"},
+  {u:5, en:"chip", zh:"炸薯条，炸薯片"},
+  {u:5, en:"smartphone", zh:"智能手机"},
+  {u:5, en:"tablet", zh:"平板电脑"},
+  {u:5, en:"score", zh:"分数，比分"},
+  {u:5, en:"point", zh:"得分；要点；地点"},
+  {u:5, en:"meal", zh:"一餐饭"},
+  {u:5, en:"porridge", zh:"粥；麦片粥"},
+  {u:5, en:"whole", zh:"整个的；全部"},
+  {u:5, en:"miss", zh:"错过"},
+  {u:5, en:"rest", zh:"休息"},
+  {u:5, en:"pie", zh:"馅饼"},
+  {u:5, en:"yogurt", zh:"酸奶"},
+  {u:5, en:"most", zh:"大多数；最多"},
+  // Unit 6 Fashion
+  {u:6, en:"style", zh:"样式，方式，作风"},
+  {u:6, en:"blouse", zh:"女式衬衫"},
+  {u:6, en:"jacket", zh:"夹克衫"},
+  {u:6, en:"jeans", zh:"牛仔裤"},
+  {u:6, en:"scarf", zh:"围巾"},
+  {u:6, en:"tie", zh:"领带"},
+  {u:6, en:"T-shirt", zh:"T恤衫"},
+  {u:6, en:"calm", zh:"镇静的，沉着的"},
+  {u:6, en:"fashion", zh:"时装业；流行"},
+  {u:6, en:"choose", zh:"选择"},
+  {u:6, en:"could", zh:"能，可以"},
+  {u:6, en:"advice", zh:"建议"},
+  {u:6, en:"depend", zh:"取决于；依靠"},
+  {u:6, en:"skin", zh:"皮肤"},
+  {u:6, en:"purple", zh:"紫色的；紫色"},
+  {u:6, en:"similar", zh:"相似的"},
+  {u:6, en:"example", zh:"例子"},
+  {u:6, en:"dark", zh:"深色的；黑暗的"},
+  {u:6, en:"mix", zh:"混合"},
+  {u:6, en:"match", zh:"般配，相配"},
+  {u:6, en:"suitable", zh:"合适的，适宜的"},
+  {u:6, en:"formal", zh:"正式的，庄重的"},
+  {u:6, en:"suit", zh:"套装，西服"},
+  {u:6, en:"casual", zh:"非正式的，随便的"},
+  {u:6, en:"comfortable", zh:"舒适的"},
+  {u:6, en:"primary", zh:"初等教育的，小学的"},
+  {u:6, en:"smart", zh:"衣着讲究的"},
+  {u:6, en:"date", zh:"日期"},
+  {u:6, en:"traditional", zh:"传统的"},
+  {u:6, en:"popular", zh:"流行的，受欢迎的"},
+  {u:6, en:"type", zh:"类型，种类"},
+  {u:6, en:"festival", zh:"节日"},
+  {u:6, en:"wedding", zh:"婚礼"},
+  {u:6, en:"just", zh:"仅仅；正好"},
+  {u:6, en:"culture", zh:"文化"},
+  {u:6, en:"country", zh:"国家"},
+  {u:6, en:"history", zh:"历史"},
+  {u:6, en:"loose", zh:"宽松的"},
+  {u:6, en:"belt", zh:"腰带，皮带"},
+  {u:6, en:"close-fitting", zh:"紧身的"},
+  {u:6, en:"silk", zh:"丝绸"},
+  {u:6, en:"feel", zh:"摸起来"},
+  {u:6, en:"smooth", zh:"光滑的"},
+  {u:6, en:"soft", zh:"柔软的"},
+  {u:6, en:"cotton", zh:"棉布，棉花"},
+  {u:6, en:"agree", zh:"同意"},
+  {u:6, en:"feature", zh:"特点，特色"},
+  {u:6, en:"material", zh:"布料，材料，原料"},
+  {u:6, en:"leather", zh:"皮革"},
+  {u:6, en:"size", zh:"尺码，大小"},
+  // Unit 7 Shopping
+  {u:7, en:"wise", zh:"明智的"},
+  {u:7, en:"yuan", zh:"元(中国货币单位)"},
+  {u:7, en:"euro", zh:"欧元"},
+  {u:7, en:"pound", zh:"英镑"},
+  {u:7, en:"yen", zh:"日元"},
+  {u:7, en:"rouble", zh:"卢布"},
+  {u:7, en:"dollar", zh:"美元"},
+  {u:7, en:"key", zh:"钥匙"},
+  {u:7, en:"ring", zh:"环状物，圈形的东西"},
+  {u:7, en:"baseball", zh:"棒球运动"},
+  {u:7, en:"Russian", zh:"俄罗斯的，俄语的"},
+  {u:7, en:"inside", zh:"在…里面"},
+  {u:7, en:"another", zh:"另一，又一"},
+  {u:7, en:"colourful", zh:"五彩缤纷的，丰富多彩的"},
+  {u:7, en:"surprise", zh:"令人惊奇的事"},
+  {u:7, en:"player", zh:"运动员"},
+  {u:7, en:"protect", zh:"保护，防护"},
+  {u:7, en:"mall", zh:"购物商场"},
+  {u:7, en:"across", zh:"在…对面；遍及"},
+  {u:7, en:"cost", zh:"需付费，价钱为"},
+  {u:7, en:"manage", zh:"明智地使用"},
+  {u:7, en:"budget", zh:"预算"},
+  {u:7, en:"cover", zh:"足以支付，够付"},
+  {u:7, en:"education", zh:"教育"},
+  {u:7, en:"pay", zh:"付款"},
+  {u:7, en:"flat", zh:"公寓"},
+  {u:7, en:"daily", zh:"每日的"},
+  {u:7, en:"expensive", zh:"昂贵的"},
+  {u:7, en:"save", zh:"储蓄，节省"},
+  {u:7, en:"bank", zh:"银行"},
+  {u:7, en:"account", zh:"账户"},
+  {u:7, en:"rainy", zh:"阴雨的"},
+  {u:7, en:"matter", zh:"要紧，有重大影响"},
+  {u:7, en:"pocket", zh:"口袋"},
+  {u:7, en:"notebook", zh:"笔记本"},
+  {u:7, en:"rest", zh:"剩余部分，其余"},
+  {u:7, en:"strawberry", zh:"草莓"},
+  {u:7, en:"bookshop", zh:"书店"},
+  {u:7, en:"eraser", zh:"橡皮"},
+  {u:7, en:"as", zh:"作为，当作；因为；像…一样"},
+  {u:7, en:"present", zh:"礼物"},
+  {u:7, en:"away", zh:"离开，去别处"},
+  {u:7, en:"shell", zh:"壳；骨架"},
+  {u:7, en:"deal", zh:"交易"},
+  {u:7, en:"coin", zh:"硬币"},
+  {u:7, en:"online", zh:"在线，在网上"},
+  {u:7, en:"lucky", zh:"幸运的"},
+  {u:7, en:"grandparent", zh:"(外)祖父，(外)祖母"},
+  {u:7, en:"relative", zh:"亲戚"},
+  {u:7, en:"send", zh:"发送"},
+  {u:7, en:"survey", zh:"民意调查，概述"},
+  {u:7, en:"beginning", zh:"开头，开端"},
+  {u:7, en:"habit", zh:"习惯"},
+  // Unit 8 Special days
+  {u:8, en:"celebrate", zh:"庆祝，颂扬"},
+  {u:8, en:"Christmas", zh:"圣诞节"},
+  {u:8, en:"remember", zh:"纪念，记住"},
+  {u:8, en:"poet", zh:"诗人"},
+  {u:8, en:"dragon", zh:"龙"},
+  {u:8, en:"race", zh:"速度竞赛，赛跑"},
+  {u:8, en:"dumpling", zh:"汤团，饺子"},
+  {u:8, en:"Scottish", zh:"苏格兰(人)的"},
+  {u:8, en:"haggis", zh:"哈吉斯(苏格兰美食)"},
+  {u:8, en:"dish", zh:"一道菜，菜肴"},
+  {u:8, en:"poem", zh:"诗歌"},
+  {u:8, en:"lady", zh:"女士；淑女"},
+  {u:8, en:"gentleman", zh:"先生；绅士"},
+  {u:8, en:"spread", zh:"传播；散布，蔓延"},
+  {u:8, en:"doorstep", zh:"门阶"},
+  {u:8, en:"hang", zh:"悬挂"},
+  {u:8, en:"onion", zh:"洋葱"},
+  {u:8, en:"Greek", zh:"希腊(人)的，希腊语的"},
+  {u:8, en:"tradition", zh:"传统"},
+  {u:8, en:"symbol", zh:"象征；符号"},
+  {u:8, en:"midnight", zh:"午夜"},
+  {u:8, en:"strike", zh:"敲，鸣，报时；撞击"},
+  {u:8, en:"into", zh:"进入，到…里面"},
+  {u:8, en:"ahead", zh:"在前面，向前"},
+  {u:8, en:"carry", zh:"拿，提；携带"},
+  {u:8, en:"suitcase", zh:"(旅行用的)手提箱"},
+  {u:8, en:"block", zh:"街区"},
+  {u:8, en:"traveller", zh:"旅行者，游客"},
+  {u:8, en:"wherever", zh:"在任何地方"},
+  {u:8, en:"violin", zh:"小提琴"},
+  {u:8, en:"lively", zh:"轻快的，生气勃勃的"},
+  {u:8, en:"moment", zh:"瞬间，片刻"},
+  {u:8, en:"tonight", zh:"在今晚"},
+  {u:8, en:"lantern", zh:"灯笼"},
+  {u:8, en:"mountain", zh:"高山，山岳"},
+  {u:8, en:"climb", zh:"攀爬，爬"},
+  {u:8, en:"natural", zh:"自然的"},
+  {u:8, en:"beauty", zh:"美，美丽"},
+  {u:8, en:"respect", zh:"尊敬"},
+  {u:8, en:"elder", zh:"长者，长辈"},
+  {u:8, en:"double", zh:"双的；两倍的"},
+  {u:8, en:"forever", zh:"永远；长久"},
+  {u:8, en:"decorate", zh:"装饰"},
+  {u:8, en:"beforehand", zh:"预先"},
+  {u:8, en:"prepare", zh:"准备"},
+  {u:8, en:"meaning", zh:"含义，意思"},
+  {u:8, en:"during", zh:"在…期间"},
+  {u:8, en:"last", zh:"持续，延续"},
+  {u:8, en:"till", zh:"到…时，直到…为止"},
+  {u:8, en:"heart", zh:"内心；心脏"},
+],
+phrases: [
+  // Unit 1
+  {u:1, en:"each other", zh:"互相"},
+  {u:1, en:"go by", zh:"叫作，被称为"},
+  {u:1, en:"be full of", zh:"满是…的"},
+  {u:1, en:"be good at", zh:"擅长…"},
+  {u:1, en:"be ready to do sth", zh:"愿意(准备好)做某事"},
+  {u:1, en:"be interested in", zh:"对…感兴趣"},
+  {u:1, en:"good luck", zh:"祝成功，祝好运"},
+  {u:1, en:"Chinese chess", zh:"中国象棋"},
+  {u:1, en:"at the weekend", zh:"在周末"},
+  {u:1, en:"make friends with", zh:"与…交朋友"},
+  // Unit 2
+  {u:2, en:"all kinds of", zh:"各种各样的"},
+  {u:2, en:"take apart", zh:"拆卸，拆开(机器等)"},
+  {u:2, en:"come true", zh:"实现，成为现实"},
+  {u:2, en:"role model", zh:"榜样，行为楷模"},
+  {u:2, en:"would like", zh:"想要"},
+  {u:2, en:"in the future", zh:"在未来"},
+  {u:2, en:"get to do sth", zh:"有机会做某事"},
+  {u:2, en:"plan to do sth", zh:"打算做某事"},
+  // Unit 3
+  {u:3, en:"sports field", zh:"运动场"},
+  {u:3, en:"dining hall", zh:"食堂，餐厅"},
+  {u:3, en:"as well", zh:"也"},
+  {u:3, en:"take place", zh:"发生"},
+  {u:3, en:"form teacher", zh:"班主任"},
+  {u:3, en:"in fact", zh:"确切地说；事实上"},
+  {u:3, en:"care about", zh:"关心"},
+  {u:3, en:"place for sb to do sth", zh:"某人做某事的地方"},
+  {u:3, en:"see sb doing sth", zh:"看见某人正在做某事"},
+  {u:3, en:"at a time", zh:"每次，逐一"},
+  {u:3, en:"thanks for", zh:"为…而感谢"},
+  // Unit 4
+  {u:4, en:"get up", zh:"起床"},
+  {u:4, en:"on weekdays", zh:"在工作日"},
+  {u:4, en:"a little", zh:"一点，少量"},
+  {u:4, en:"enjoy oneself", zh:"玩得愉快，得到乐趣"},
+  {u:4, en:"field trip", zh:"野外考察，实地考察"},
+  {u:4, en:"of course", zh:"当然"},
+  {u:4, en:"roller skate", zh:"滑旱冰，溜旱冰"},
+  {u:4, en:"take part in", zh:"参加"},
+  {u:4, en:"take turns", zh:"轮流"},
+  {u:4, en:"take care of", zh:"照料，照顾"},
+  {u:4, en:"hear from sb", zh:"收到某人的信(或电话等)"},
+  {u:4, en:"try one's best", zh:"尽某人最大的努力，竭尽全力"},
+  // Unit 5
+  {u:5, en:"have a sweet tooth", zh:"爱吃甜食"},
+  {u:5, en:"stay up", zh:"熬夜"},
+  {u:5, en:"be good for", zh:"对…有益"},
+  {u:5, en:"get hours of sleep", zh:"睡…小时"},
+  {u:5, en:"say no to", zh:"拒绝…"},
+  // Unit 6
+  {u:6, en:"depend on", zh:"取决于；依靠"},
+  {u:6, en:"such as", zh:"例如，诸如…之类"},
+  {u:6, en:"for example", zh:"例如"},
+  {u:6, en:"stand out", zh:"突出，显眼"},
+  {u:6, en:"be made of", zh:"由…制成"},
+  {u:6, en:"a way of doing sth", zh:"做某事的一种方式或途径"},
+  {u:6, en:"go well together", zh:"相配，相称"},
+  // Unit 7
+  {u:7, en:"a set of", zh:"一套，一副，一组"},
+  {u:7, en:"per cent", zh:"百分之…"},
+  {u:7, en:"pay for", zh:"为…支付"},
+  {u:7, en:"pocket money", zh:"零花钱"},
+  {u:7, en:"lucky money", zh:"压岁钱"},
+  {u:7, en:"red packet", zh:"红包"},
+  {u:7, en:"in need", zh:"在困难中"},
+  {u:7, en:"protect ... from ...", zh:"保护…免受…危害"},
+  {u:7, en:"save for a rainy day", zh:"存钱以备不时之需"},
+  // Unit 8
+  {u:8, en:"dragon boat", zh:"龙舟"},
+  {u:8, en:"rice dumpling", zh:"粽子"},
+  {u:8, en:"in the hope of", zh:"怀着…的希望"},
+  {u:8, en:"spring roll", zh:"春卷"},
+  {u:8, en:"at the moment", zh:"此刻，当时"},
+  {u:8, en:"put up", zh:"张贴，挂起"},
+  {u:8, en:"Spring Festival couplets", zh:"春联"},
+  {u:8, en:"a symbol of", zh:"…的象征"},
+  {u:8, en:"get over", zh:"解决，克服"},
+],
+sentences: [
+  // Unit 1 This is me!
+  {u:1, en:"Hello, I'm Wang Xinyue, and I go by Millie.", zh:"你好，我叫王欣悦。你们也可以叫我米莉。"},
+  {u:1, en:"Nice to meet you!", zh:"很高兴见到你！"},
+  {u:1, en:"He is always full of energy.", zh:"他总是精力充沛。"},
+  {u:1, en:"He is smart and always ready to help others.", zh:"他很聪明，并且总是乐于助人。"},
+  {u:1, en:"He is interested in science.", zh:"他对科学感兴趣。"},
+  {u:1, en:"Ms Lin, this is my classmate Simon.", zh:"林老师，这是我的同学西蒙。"},
+  {u:1, en:"Sport helps me stay healthy and happy.", zh:"运动帮助我保持健康和愉悦。"},
+  {u:1, en:"I enjoy playing Chinese chess and ping-pong.", zh:"我喜爱下中国象棋和打乒乓球。"},
+  // Unit 2 Hobbies
+  {u:2, en:"He gets to see all kinds of things and learns a lot.", zh:"他有机会见到各种各样的事物，学到许多知识。"},
+  {u:2, en:"At home, he likes to take things apart and learn how they work.", zh:"在家时，他喜欢把东西拆开，研究它们的工作原理。"},
+  {u:2, en:"He also goes on the internet to find answers to his endless questions.", zh:"他还会上网为自己无穷无尽的问题寻找答案。"},
+  {u:2, en:"Do you plan to join the Painting Club?", zh:"你打算加入绘画俱乐部吗？"},
+  {u:2, en:"My favourite artist is Xu Beihong.", zh:"我最喜欢的艺术家是徐悲鸿。"},
+  {u:2, en:"I want to become a designer.", zh:"我想成为一名设计师。"},
+  // Unit 3 Welcome to our school
+  {u:3, en:"They're the perfect places for us to study.", zh:"它们（图书馆和教学楼）是供我们学习的绝佳场所。"},
+  {u:3, en:"Can you see the students running there?", zh:"你能看见学生在那儿跑步吗？"},
+  {u:3, en:"Lots of exciting sports matches take place on it.", zh:"许多精彩的体育比赛都在这里举行。"},
+  {u:3, en:"They're role models for us.", zh:"他们是我们的榜样。"},
+  {u:3, en:"You will find lots of books on different subjects there—thousands of them, in fact!", zh:"你会在那里找到许多不同主题的图书——确切地说，有成千上万册呢！"},
+  {u:3, en:"You can borrow three books at a time.", zh:"你一次可以借三本书。"},
+  {u:3, en:"There is a reading room with computers on the top floor.", zh:"顶层有一间配了电脑的阅览室。"},
+  {u:3, en:"What else do you like about our school?", zh:"你还喜欢我们学校的哪些方面？"},
+  {u:3, en:"Thanks for your email.", zh:"谢谢你的邮件。"},
+  // Unit 4 My day
+  {u:4, en:"Learning is the key to unlocking the world.", zh:"学习是打开世界的钥匙。"},
+  {u:4, en:"Club activities are a good way for me to enjoy myself and make friends.", zh:"（参加）俱乐部活动是我玩得痛快并结交朋友的好方法。"},
+  {u:4, en:"Hope to hear from you soon.", zh:"希望尽快收到你的邮件。"},
+  {u:4, en:"Everybody tries their best to make things better.", zh:"每个人都竭尽全力让事情变得更好。"},
+  {u:4, en:"In my class, we all work in groups and take turns to do different chores.", zh:"在我们班，大家分小组轮流完成不同的值日任务。"},
+  {u:4, en:"We each do something for our class and learn about teamwork through chores.", zh:"通过值日，我们每个人都为班级做些事情并学会团队协作。"},
+  // Unit 5 Food and lifestyle
+  {u:5, en:"A life without health is like a river without water.", zh:"不健康的生活犹如干涸的河流。"},
+  {u:5, en:"They're good for us.", zh:"它们对我们有益。"},
+  {u:5, en:"I get nine hours of sleep every night, so I am always full of energy.", zh:"我每天晚上睡九个小时，所以我总是精力充沛。"},
+  {u:5, en:"For lunch, I like fish, meat and tofu.", zh:"我午餐喜欢吃鱼、肉和豆腐。"},
+  {u:5, en:"I have a sweet tooth and it is hard for me to say no to cakes.", zh:"我爱吃甜食，对我来说要拒绝蛋糕是很难的。"},
+  {u:5, en:"I need to get enough sleep.", zh:"我需要充足的睡眠。"},
+  // Unit 6 Fashion
+  {u:6, en:"Dressing is a way of life.", zh:"着装是一种生活方式。"},
+  {u:6, en:"Well, it depends on the colour of our skin.", zh:"嗯，这取决于我们的肤色。"},
+  {u:6, en:"Which colours go well together?", zh:"哪些颜色搭配协调？"},
+  {u:6, en:"In fact, warm and cool colours make each other stand out, such as yellow and green or orange and blue.", zh:"事实上，暖色和冷色可以相互衬托，比如黄色配蓝色，或者橙色配蓝色。"},
+  {u:6, en:"Some popular types are hanfu, qipao and tangzhuang.", zh:"一些受欢迎的类型有汉服、旗袍和唐装。"},
+  {u:6, en:"Qipao are usually made of silk, and they feel smooth and soft.", zh:"旗袍通常由丝绸制成，摸起来柔软光滑。"},
+  {u:6, en:"I think white shirts have a clean look, and white matches any other colour.", zh:"我觉得白衬衫看起来很干净，而且白色和其他任何颜色都很搭配。"},
+  {u:6, en:"The jacket is not too long or too large, and it is dark blue.", zh:"这件夹克衫不长也不大，是深蓝色的。"},
+  // Unit 7 Shopping
+  {u:7, en:"Get your money's worth.", zh:"让你的钱花得值。"},
+  {u:7, en:"They're a set of dolls in different sizes.", zh:"它们（俄罗斯套娃）是一套大小不同的娃娃。"},
+  {u:7, en:"Players wear them to protect their eyes from the sun, and they're also a kind of fashion.", zh:"运动员们戴着它们（棒球帽）保护眼睛免受日光伤害，它们也是一种时尚。"},
+  {u:7, en:"That will cost a lot of money.", zh:"那要花费一大笔钱。"},
+  {u:7, en:"It's a good idea to save for a rainy day.", zh:"未雨绸缪是一个好主意。"},
+  {u:7, en:"Do you usually get lucky money at the Spring Festival?", zh:"你通常会在春节收到压岁钱吗？"},
+  {u:7, en:"Same here.", zh:"我也一样。"},
+  // Unit 8 Special days
+  {u:8, en:"Onions are a symbol of good luck and health.", zh:"洋葱象征着好运与健康。"},
+  {u:8, en:"When the clock strikes 12, they jump off their chairs into the new year, in the hope of getting over any problem in the year ahead!", zh:"当时钟敲响12点，他们从椅子上一跃而下进入新的一年，祈愿在未来的一年里能克服任何困难！"},
+  {u:8, en:"But wherever you are, Happy New Year!", zh:"但是无论你在哪儿，祝你新年快乐！"},
+  {u:8, en:"They're playing a famous piece from the Strauss family.", zh:"他们正在演奏施特劳斯家族的一支名曲。"},
+  {u:8, en:"The Double Ninth Festival is in autumn.", zh:"重阳节是在秋天。"},
+],
+grammar: [
+  // Unit 1 一般现在时（I）be 动词
+  {u:1, type:"choice", q:"I ____ in Grade 7.", opts:["am","is","are","be"], ans:0, exp:"主语 I 用 be 动词 am。"},
+  {u:1, type:"choice", q:"He ____ my good friend.", opts:["am","is","are","be"], ans:1, exp:"he 是第三人称单数，be 动词用 is。"},
+  {u:1, type:"choice", q:"The students ____ in the classroom.", opts:["am","is","are","be"], ans:2, exp:"主语为复数，be 动词用 are。"},
+  {u:1, type:"choice", q:"they are 的正确缩写是？", opts:["they're","theyre","they's","theiy're"], ans:0, exp:"they are = they're。"},
+  {u:1, type:"choice", q:"下列哪一项不能缩写？", opts:["are not → aren't","is not → isn't","am not（无缩写）","that is → that's"], ans:2, exp:"am 与 not 不能缩写，没有 amn't 这种形式。"},
+  {u:1, type:"choice", q:"—____ that girl your classmate? —No, she isn't.", opts:["Am","Is","Are","Do"], ans:1, exp:"that girl 第三人称单数，一般疑问句把 is 提前至句首。"},
+  {u:1, type:"fill", q:"This subject ____ not easy. (be 动词)", ans:"is", exp:"subject 为单数，用 is；否定句在 be 后加 not。"},
+  {u:1, type:"fill", q:"—Are you good at Maths? —Yes, I ____.", ans:"am", exp:"问句用 are you，肯定回答 Yes, I am（不缩写）。"},
+
+  // Unit 2 一般现在时（II）行为动词
+  {u:2, type:"choice", q:"She ____ museums every weekend.", opts:["visit","visits","visiting","to visit"], ans:1, exp:"she 第三人称单数，行为动词加 s：visits。"},
+  {u:2, type:"choice", q:"carry 的第三人称单数形式是？", opts:["carrys","carries","carryes","carry"], ans:1, exp:"辅音字母+y 结尾，去 y 变 i 加 es：carries。"},
+  {u:2, type:"choice", q:"go 的第三人称单数形式是？", opts:["gos","goes","goies","going"], ans:1, exp:"辅音字母+o 结尾加 es：goes。"},
+  {u:2, type:"choice", q:"teach 的第三人称单数形式是？", opts:["teachs","teaches","teachies","teach"], ans:1, exp:"以 ch 结尾加 es：teaches。"},
+  {u:2, type:"choice", q:"Students ____ go to school on Sunday.", opts:["do not","does not","is not","are not"], ans:0, exp:"students 为复数，否定用助动词 do not + 动词原形。"},
+  {u:2, type:"choice", q:"____ John often play basketball after school?", opts:["Do","Does","Is","Are"], ans:1, exp:"John 第三人称单数，助动词用 Does，后跟动词原形 play。"},
+  {u:2, type:"fill", q:"He ____ (have) lunch at school.", ans:"has", exp:"have 的第三人称单数为特殊变化 has。"},
+  {u:2, type:"fill", q:"He doesn't ____ (work) in this shop.", ans:"work", exp:"助动词 doesn't 后跟动词原形 work。"},
+
+  // Unit 3 人称代词
+  {u:3, type:"choice", q:"Lucy and I are in the library. ____ like reading here.", opts:["We","Us","They","Them"], ans:0, exp:"作主语用主格 We。"},
+  {u:3, type:"choice", q:"Helen is my classmate. I often play with ____.", opts:["she","her","hers","he"], ans:1, exp:"介词 with 后用宾格 her。"},
+  {u:3, type:"choice", q:"The panda is cute. Everyone likes ____.", opts:["it","its","he","him"], ans:0, exp:"指代动物用 it，此处作宾语。"},
+  {u:3, type:"choice", q:"he 的宾格形式是？", opts:["he","his","him","her"], ans:2, exp:"he 的宾格是 him。"},
+  {u:3, type:"choice", q:"Look at these classrooms. ____ are clean and bright.", opts:["It","They","Them","He"], ans:1, exp:"指代复数 classrooms 作主语，用主格 They。"},
+  {u:3, type:"choice", q:"Can you see Tom and ____ over there?", opts:["I","he","she","me"], ans:3, exp:"与 Tom 并列作 see 的宾语，用宾格 me。"},
+  {u:3, type:"fill", q:"These books are heavy. Please carry ____ (它们) for me.", ans:"them", exp:"指代复数 books 作宾语，用宾格 them。"},
+  {u:3, type:"fill", q:"This is my sister. Do you know ____ (她)?", ans:"her", exp:"作 know 的宾语，用宾格 her。"},
+
+  // Unit 4 时间介词 in/on/at + 频度副词
+  {u:4, type:"choice", q:"We have an art lesson ____ Monday.", opts:["in","on","at","for"], ans:1, exp:"星期前用介词 on：on Monday。"},
+  {u:4, type:"choice", q:"I get up ____ six o'clock.", opts:["in","on","at","to"], ans:2, exp:"具体时刻前用 at：at six o'clock。"},
+  {u:4, type:"choice", q:"My birthday is ____ September.", opts:["in","on","at","of"], ans:0, exp:"月份前用 in：in September。"},
+  {u:4, type:"choice", q:"____ Children's Day, we have a party.", opts:["In","On","At","For"], ans:1, exp:"特定的节日（一天）用 on：on Children's Day。"},
+  {u:4, type:"choice", q:"We have a big meal ____ the Spring Festival.", opts:["in","on","at","of"], ans:2, exp:"节日持续一段时间时用 at：at the Spring Festival。"},
+  {u:4, type:"choice", q:"频度副词在句中通常放在什么位置？", opts:["行为动词之前，be 动词/助动词之后","句首","句末","任意位置"], ans:0, exp:"频度副词一般放在行为动词前面，be 动词和助动词的后面。"},
+  {u:4, type:"choice", q:"下列频率由低到高排列正确的是？", opts:["never < sometimes < often < always","always < often < never","often < never < always","sometimes < never < always"], ans:0, exp:"频率由低到高：never < seldom < sometimes < often < usually < always。"},
+  {u:4, type:"fill", q:"I go to school ____ weekdays. (介词)", ans:"on", exp:"on weekdays 意为在工作日。"},
+  {u:4, type:"fill", q:"He ____ (总是) takes a walk after dinner. (填频度副词)", ans:"always", exp:"always 放在行为动词 takes 之前。"},
+
+  // Unit 5 可数名词和不可数名词
+  {u:5, type:"choice", q:"hobby 的复数形式是？", opts:["hobbys","hobbies","hobbyes","hobby"], ans:1, exp:"辅音字母+y 结尾，去 y 变 i 加 es：hobbies。"},
+  {u:5, type:"choice", q:"dish 的复数形式是？", opts:["dishs","dishies","dishes","dish"], ans:2, exp:"以 sh 结尾加 es：dishes。"},
+  {u:5, type:"choice", q:"knife 的复数形式是？", opts:["knifes","knives","knifies","knifs"], ans:1, exp:"以 fe 结尾，去 fe 加 ves：knives。"},
+  {u:5, type:"choice", q:"下列哪个是不可数名词？", opts:["egg","apple","water","book"], ans:2, exp:"water 是不可数名词，没有复数形式。"},
+  {u:5, type:"choice", q:"There is ____ apple on the table.", opts:["a","an","the","/"], ans:1, exp:"apple 以元音音素开头，用 an。"},
+  {u:5, type:"choice", q:"Coffee ____ a kind of drink.", opts:["am","is","are","be"], ans:1, exp:"不可数名词作主语，谓语动词用单数 is。"},
+  {u:5, type:"choice", q:"一张纸 的正确表达是？", opts:["a paper","a piece of paper","a piece paper","papers"], ans:1, exp:"paper 不可数，用 a piece of paper 表示数量。"},
+  {u:5, type:"fill", q:"There are three ____ (box) over there.", ans:"boxes", exp:"以 x 结尾加 es：boxes。"},
+  {u:5, type:"fill", q:"child 的复数形式是 ____.", ans:"children", exp:"特殊变化：child → children。"},
+
+  // Unit 6 疑问句
+  {u:6, type:"choice", q:"____ is your favourite colour? —Blue.", opts:["What","Who","Where","When"], ans:0, exp:"询问事物用 What。"},
+  {u:6, type:"choice", q:"____ shoes are these? —They're Tom's.", opts:["What","Whose","Which","Who"], ans:1, exp:"询问 谁的 用 Whose。"},
+  {u:6, type:"choice", q:"____ students are there in your class?", opts:["How many","How much","How old","How long"], ans:0, exp:"询问可数名词的数量用 How many。"},
+  {u:6, type:"choice", q:"____ milk do you drink every day?", opts:["How many","How much","How old","How often"], ans:1, exp:"询问不可数名词的数量用 How much。"},
+  {u:6, type:"choice", q:"____ do you go to the library? —Once a week.", opts:["How long","How often","How far","How many"], ans:1, exp:"询问频率（多长时间一次）用 How often。"},
+  {u:6, type:"choice", q:"____ is your T-shirt? —Fifty yuan.", opts:["How many","How much","How old","How long"], ans:1, exp:"询问价格用 How much。"},
+  {u:6, type:"choice", q:"—Do you like silk scarves ____ cotton scarves? —Silk.", opts:["and","or","but","with"], ans:1, exp:"选择疑问句用 or 连接所提供的选项。"},
+  {u:6, type:"fill", q:"____ is the Yangtze River? —About 6,300 km. (询问多长)", ans:"How long", exp:"询问长度用 How long。"},
+  {u:6, type:"fill", q:"____ do they live? —In Beijing. (询问地点)", ans:"Where", exp:"询问地点用 Where。"},
+
+  // Unit 7 some 和 any + there be 结构
+  {u:7, type:"choice", q:"There are ____ gifts on the desk.", opts:["some","any","much","a"], ans:0, exp:"肯定句中用 some。"},
+  {u:7, type:"choice", q:"Do you have ____ free time?", opts:["some","any","much","a"], ans:1, exp:"一般疑问句中通常用 any。"},
+  {u:7, type:"choice", q:"There aren't ____ oranges in the shop.", opts:["some","any","much","a"], ans:1, exp:"否定句中用 any。"},
+  {u:7, type:"choice", q:"Would you like ____ tea?", opts:["some","any","much","many"], ans:0, exp:"表示请求并希望得到肯定答复时，疑问句中也用 some。"},
+  {u:7, type:"choice", q:"There ____ a shopping mall near the bank.", opts:["is","are","have","has"], ans:0, exp:"a shopping mall 为单数，用 There is。"},
+  {u:7, type:"choice", q:"There ____ a lot of friends at my party.", opts:["is","are","has","have"], ans:1, exp:"friends 为复数，用 There are。"},
+  {u:7, type:"choice", q:"There ____ a girl and two boys in the room.", opts:["is","are","be","am"], ans:0, exp:"there be 句型遵循就近原则，靠近的 a girl 为单数，用 is。"},
+  {u:7, type:"fill", q:"____ there any water in the glass? (be 动词)", ans:"Is", exp:"water 不可数，there be 用 is，疑问句把 is 提前。"},
+  {u:7, type:"fill", q:"He doesn't have ____ new notebooks. (some/any)", ans:"any", exp:"否定句中用 any。"},
+
+  // Unit 8 现在进行时
+  {u:8, type:"choice", q:"Look! The students ____ basketball.", opts:["play","plays","are playing","playing"], ans:2, exp:"Look 提示现在进行时，复数主语用 are + 现在分词 playing。"},
+  {u:8, type:"choice", q:"swim 的现在分词是？", opts:["swiming","swimming","swimsing","swimely"], ans:1, exp:"重读闭音节双写最后一个辅音字母再加 ing：swimming。"},
+  {u:8, type:"choice", q:"take 的现在分词是？", opts:["takeing","taking","takking","taken"], ans:1, exp:"以不发音的 e 结尾，去 e 加 ing：taking。"},
+  {u:8, type:"choice", q:"现在进行时的基本结构是？", opts:["主语 + 动词原形","主语 + be + 现在分词","主语 + be + 动词原形","主语 + 助动词 + 动词"], ans:1, exp:"现在进行时 = 主语 + be + 动词的现在分词。"},
+  {u:8, type:"choice", q:"The students ____ lunch now.（否定句）", opts:["aren't having","don't have","isn't having","not have"], ans:0, exp:"现在进行时否定 = be + not + 现在分词；students 复数用 aren't having。"},
+  {u:8, type:"choice", q:"—____ that girl listening to music? —Yes, she is.", opts:["Does","Is","Are","Do"], ans:1, exp:"现在进行时一般疑问句把 be 提前，that girl 单数用 Is。"},
+  {u:8, type:"choice", q:"下列哪个动词一般不用于现在进行时？", opts:["read","like","make","walk"], ans:1, exp:"like（以及 know/want/see 等）一般不用于现在进行时。"},
+  {u:8, type:"fill", q:"Listen! Our teacher ____ (sing) a song.", ans:"is singing", exp:"Listen 提示现在进行时，单数主语用 is + singing。"},
+  {u:8, type:"fill", q:"—What are you ____ (read)? —A storybook.", ans:"reading", exp:"现在进行时，read 的现在分词为 reading。"},
+],
+};
+
+// ========== STATE ==========
+let state = {
+  unit: 'all',
+  tab: 'words',
+  mode: 'zh2en', // zh2en or listen
+  random: false,
+  currentItems: [],
+  currentIndex: 0,
+  answers: {}, // key: "tab-unit-index" -> {correct:bool}
+  grammarAnswers: {},
+};
+
+// Load progress from localStorage
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('7a_words_review_progress');
+    if (saved) {
+      const p = JSON.parse(saved);
+      state.answers = p.answers || {};
+      state.grammarAnswers = p.grammarAnswers || {};
+    }
+  } catch(e) {}
+}
+function saveProgress() {
+  try {
+    localStorage.setItem('7a_words_review_progress', JSON.stringify({
+      answers: state.answers,
+      grammarAnswers: state.grammarAnswers,
+    }));
+  } catch(e) {}
+}
+
+// ========== NAVIGATION ==========
+function selectUnit(u) {
+  state.unit = u;
+  document.querySelectorAll('.sidebar .nav-item').forEach((el, i) => {
+    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i));
+  });
+  if (window.innerWidth < 768) toggleSidebar();
+  render();
+}
+function selectTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tab-btn').forEach(el => {
+    el.classList.toggle('active', el.textContent.includes(
+      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : '打印'
+    ));
+  });
+  render();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ========== FILTERING ==========
+function getItems(tab) {
+  const src = DATA[tab] || [];
+  return state.unit === 'all' ? [...src] : src.filter(i => i.u === state.unit);
+}
+
+// ========== ANSWER CHECKING ==========
+function normalize(s) {
+  return s.toLowerCase().replace(/['']/g, "'").replace(/[""]/g, '"').replace(/\s+/g, ' ').replace(/[.,!?;:，。！？；：、]+$/g, '').trim();
+}
+function checkAnswer(input, expected) {
+  const a = normalize(input);
+  const b = normalize(expected);
+  if (a === b) return true;
+  // Also check without any punctuation
+  const a2 = a.replace(/[^a-z0-9\s]/g, '');
+  const b2 = b.replace(/[^a-z0-9\s]/g, '');
+  return a2 === b2;
+}
+
+// ========== TTS ==========
+// TTS: cache English voice
+let _enVoice = null;
+let _voicesLoaded = false;
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+  _voicesLoaded = true;
+  // Prefer high-quality voices: Samantha (macOS), Google US English, any en-US, any en
+  const prefs = [
+    v => v.name.includes('Samantha'),
+    v => v.name.includes('Google') && v.lang.startsWith('en'),
+    v => v.name.includes('Natural') && v.lang.startsWith('en'),
+    v => v.lang === 'en-US' && !v.name.includes('Compact'),
+    v => v.lang === 'en-GB' && !v.name.includes('Compact'),
+    v => v.lang.startsWith('en-'),
+    v => v.lang.startsWith('en'),
+  ];
+  for (const test of prefs) {
+    const found = voices.find(test);
+    if (found) { _enVoice = found; return; }
+  }
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  if (!_voicesLoaded) loadVoices();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  u.pitch = 1;
+  if (_enVoice) u.voice = _enVoice;
+  speechSynthesis.speak(u);
+}
+
+// ========== RENDER ==========
+function render() {
+  const el = document.getElementById('content');
+  if (state.tab === 'print') return renderPrint(el);
+  if (state.tab === 'grammar') return renderGrammar(el);
+  renderDictation(el);
+}
+
+function renderDictation(el) {
+  const items = getItems(state.tab);
+  if (state.random) {
+    // Shuffle using Fisher-Yates
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+  }
+  state.currentItems = items;
+
+  const total = items.length;
+  const getKey = (item) => `${state.tab}-${item.u}-${DATA[state.tab].indexOf(item)}`;
+  const answered = items.filter(item => state.answers[getKey(item)] !== undefined).length;
+  const correct = items.filter(item => state.answers[getKey(item)]?.correct).length;
+
+  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
+  const tabLabel = state.tab === 'words' ? '单词' : state.tab === 'phrases' ? '词组' : '句子';
+
+  let html = `
+    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <div class="stats">
+      <span>共 ${total} 个${tabLabel}</span>
+      <span>已完成 ${answered}/${total}</span>
+      <span>正确率 ${answered > 0 ? Math.round(correct/answered*100) : 0}%</span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-outline ${state.mode==='zh2en'?'active':''}" onclick="switchMode('zh2en')">看中文写英文</button>
+      <button class="btn btn-outline ${state.mode==='listen'?'active':''}" onclick="switchMode('listen')">听英文写英文</button>
+      <button class="btn btn-outline ${state.random?'active':''}" onclick="toggleRandom()">随机顺序</button>
+      <button class="btn btn-warning" onclick="clearTabProgress()">重做本组</button>
+    </div>
+  `;
+
+  items.forEach((item, idx) => {
+    const key = getKey(item);
+    const answered = state.answers[key];
+    const inputId = `input-${idx}`;
+
+    html += `<div class="card" id="card-${idx}">`;
+    html += `<div class="label">Unit ${item.u} · #${idx+1}</div>`;
+
+    if (state.mode === 'zh2en') {
+      html += `<div class="zh">${item.zh}</div>`;
+    } else {
+      html += `<div class="zh" style="color:var(--text-light);font-size:14px;">点击喇叭听英文，写出你听到的内容</div>`;
+    }
+
+    html += `<div class="input-row">`;
+    if (state.mode === 'listen') {
+      html += `<button class="tts-btn" onclick="speak('${item.en.replace(/'/g, "\\'")}')">🔊</button>`;
+    }
+    html += `<input type="text" id="${inputId}" placeholder="输入英文..."
+      ${answered ? 'disabled' : ''}
+      class="${answered ? (answered.correct ? 'correct' : 'wrong') : ''}"
+      ${answered ? `value="${answered.userInput || ''}"` : ''}
+      onkeydown="if(event.key==='Enter')submitAnswer(${idx},'${key}','${inputId}')">`;
+    if (!answered) {
+      html += `<button class="btn btn-primary" onclick="submitAnswer(${idx},'${key}','${inputId}')">确认</button>`;
+      if (state.tab === 'sentences') {
+        html += `<button class="btn btn-outline" onclick="showHint(${idx})">提示</button>`;
+      }
+    }
+    html += `</div>`; // input-row
+
+    if (answered) {
+      if (answered.correct) {
+        html += `<div class="answer-display correct">✓ 正确！</div>`;
+      } else {
+        html += `<div class="answer-display wrong">✗ 正确答案：${item.en}</div>`;
+      }
+    }
+
+    // Hint area for sentences
+    if (state.tab === 'sentences' && !answered) {
+      html += `<div id="hint-${idx}" class="answer-display" style="color:var(--warning);display:none;"></div>`;
+    }
+
+    html += `</div>`; // card
+  });
+
+  if (total === 0) {
+    html += `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元没有此类型的内容</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function submitAnswer(idx, key, inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const userInput = input.value.trim();
+  if (!userInput) return;
+  const item = state.currentItems[idx];
+  const correct = checkAnswer(userInput, item.en);
+  state.answers[key] = { correct, userInput };
+  saveProgress();
+  render();
+  // Scroll to next unanswered
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.card');
+    for (let i = idx + 1; i < cards.length; i++) {
+      const inp = cards[i].querySelector('input:not([disabled])');
+      if (inp) { inp.focus(); inp.scrollIntoView({behavior:'smooth', block:'center'}); break; }
+    }
+  }, 100);
+}
+
+function showHint(idx) {
+  const item = state.currentItems[idx];
+  const hintEl = document.getElementById(`hint-${idx}`);
+  if (!hintEl) return;
+  const words = item.en.split(' ');
+  const current = hintEl.dataset.level ? parseInt(hintEl.dataset.level) : 0;
+  const next = Math.min(current + 1, words[0].length);
+  hintEl.dataset.level = next;
+  const hints = words.map((w, i) => {
+    if (i === 0) return w.substring(0, next) + '_'.repeat(Math.max(0, w.length - next));
+    return w[0] + '_'.repeat(w.length - 1);
+  });
+  hintEl.textContent = '提示：' + hints.join(' ');
+  hintEl.style.display = 'block';
+}
+
+function switchMode(mode) {
+  state.mode = mode;
+  render();
+}
+function toggleRandom() {
+  state.random = !state.random;
+  render();
+}
+function clearTabProgress() {
+  const items = getItems(state.tab);
+  items.forEach(item => {
+    const key = `${state.tab}-${item.u}-${DATA[state.tab].indexOf(item)}`;
+    delete state.answers[key];
+  });
+  saveProgress();
+  render();
+}
+
+// ========== GRAMMAR ==========
+function renderGrammar(el) {
+  const items = getItems('grammar');
+  const total = items.length;
+  const answered = items.filter(item => {
+    const key = `grammar-${item.u}-${DATA.grammar.indexOf(item)}`;
+    return state.grammarAnswers[key] !== undefined;
+  }).length;
+  const correct = items.filter(item => {
+    const key = `grammar-${item.u}-${DATA.grammar.indexOf(item)}`;
+    return state.grammarAnswers[key]?.correct;
+  }).length;
+  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
+
+  let html = `
+    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <div class="stats">
+      <span>共 ${total} 题</span>
+      <span>已完成 ${answered}/${total}</span>
+      <span>正确率 ${answered > 0 ? Math.round(correct/answered*100) : 0}%</span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-warning" onclick="clearGrammarProgress()">重做本组</button>
+      <button class="btn btn-outline" onclick="doPrintGrammar()">🖨️ 打印练习卷</button>
+    </div>
+  `;
+
+  items.forEach((item, idx) => {
+    const globalIdx = DATA.grammar.indexOf(item);
+    const key = `grammar-${item.u}-${globalIdx}`;
+    const answered = state.grammarAnswers[key];
+
+    html += `<div class="grammar-card">`;
+    html += `<div class="label">Unit ${item.u} · 第${idx+1}题 · ${item.type==='choice'?'选择题':'填空题'}</div>`;
+    html += `<div class="question">${item.q}</div>`;
+
+    if (item.type === 'choice') {
+      html += `<div class="options">`;
+      item.opts.forEach((opt, oi) => {
+        let cls = '';
+        if (answered) {
+          cls = 'disabled';
+          if (oi === answered.selected) cls += answered.correct ? ' selected-correct' : ' selected-wrong';
+          if (oi === item.ans && !answered.correct) cls += ' show-correct';
+        }
+        html += `<button class="option-btn ${cls}" onclick="submitGrammar(${idx},'${key}',${oi})">${String.fromCharCode(65+oi)}. ${opt}</button>`;
+      });
+      html += `</div>`;
+    } else {
+      const fillId = `fill-${idx}`;
+      html += `<div class="input-row" style="margin-top:8px;">`;
+      html += `<input type="text" class="fill-input ${answered ? (answered.correct ? 'correct' : 'wrong') : ''}"
+        id="${fillId}" placeholder="填写答案..."
+        ${answered ? `disabled value="${answered.userInput || ''}"` : ''}
+        onkeydown="if(event.key==='Enter')submitGrammarFill(${idx},'${key}','${fillId}')">`;
+      if (!answered) {
+        html += `<button class="btn btn-primary" onclick="submitGrammarFill(${idx},'${key}','${fillId}')">确认</button>`;
+      }
+      html += `</div>`;
+      if (answered && !answered.correct) {
+        html += `<div class="answer-display wrong" style="margin-top:6px;">正确答案：${item.ans}</div>`;
+      }
+    }
+
+    html += `<div class="explanation" id="exp-${idx}" style="${answered ? 'display:block' : ''}">${item.exp}</div>`;
+    html += `</div>`;
+  });
+
+  if (total === 0) {
+    html += `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元没有语法练习</div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function submitGrammar(idx, key, selected) {
+  if (state.grammarAnswers[key]) return;
+  const items = getItems('grammar');
+  const item = items[idx];
+  const correct = selected === item.ans;
+  state.grammarAnswers[key] = { correct, selected };
+  saveProgress();
+  render();
+}
+
+function submitGrammarFill(idx, key, fillId) {
+  if (state.grammarAnswers[key]) return;
+  const input = document.getElementById(fillId);
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const items = getItems('grammar');
+  const item = items[idx];
+  const correct = normalize(val) === normalize(item.ans);
+  state.grammarAnswers[key] = { correct, userInput: val };
+  saveProgress();
+  render();
+}
+
+function clearGrammarProgress() {
+  const items = getItems('grammar');
+  items.forEach(item => {
+    const key = `grammar-${item.u}-${DATA.grammar.indexOf(item)}`;
+    delete state.grammarAnswers[key];
+  });
+  saveProgress();
+  render();
+}
+
+function doPrintGrammar() {
+  const el = document.getElementById('content');
+  const grammar = getItems('grammar');
+  const choices = grammar.filter(g => g.type === 'choice');
+  const fills = grammar.filter(g => g.type === 'fill');
+  const unitLabel = state.unit === 'all' ? '全部单元' : `Unit ${state.unit}`;
+
+  let html = `<h1 style="text-align:center;font-size:20px;margin-bottom:4px;">7A英语复习 · 语法练习卷</h1>`;
+  html += `<p style="text-align:center;font-size:13px;color:#666;margin-bottom:16px;">范围：${unitLabel} · 姓名：__________ · 日期：__________</p>`;
+
+  let n = 0;
+  if (choices.length) {
+    html += `<h2>一、单项选择（共${choices.length}题）</h2>`;
+    choices.forEach((g) => {
+      n++;
+      html += `<div class="print-item"><span class="prompt">${n}. (　　) ${g.q}</span><br>`;
+      g.opts.forEach((o, oi) => {
+        html += `<span style="margin-left:16px;">${String.fromCharCode(65+oi)}. ${o}</span>&nbsp;&nbsp;`;
+      });
+      html += `</div>`;
+    });
+  }
+
+  if (fills.length) {
+    html += `<h2>二、用所给词的适当形式填空（共${fills.length}题）</h2>`;
+    fills.forEach((g) => {
+      n++;
+      html += `<div class="print-item"><span class="prompt">${n}. ${g.q}</span><div class="write-line"></div></div>`;
+    });
+  }
+
+  el.innerHTML = `
+    <div class="controls no-print">
+      <button class="btn btn-outline" onclick="render()">← 返回练习</button>
+      <span style="color:var(--text-light);font-size:13px;align-self:center;">已生成练习卷，下方点击浏览器打印或按 Ctrl/Cmd+P</span>
+    </div>
+    <div class="print-sheet" id="print-sheet" style="display:block;">${html}</div>
+  `;
+  setTimeout(() => window.print(), 200);
+}
+
+// ========== PRINT ==========
+function renderPrint(el) {
+  let html = `
+    <div class="controls no-print">
+      <button class="btn btn-primary" onclick="doPrint()">打印中译英填空卷</button>
+    </div>
+    <div class="card no-print" style="color:var(--text-light);text-align:center;">
+      <p>点击上方按钮生成练习卷并打印</p>
+      <p style="font-size:13px;margin-top:8px;">范围跟随左侧选中的单元，显示单词、词组与句子</p>
+      <p style="font-size:13px;margin-top:4px;">打印时会自动隐藏导航和交互元素，仅显示练习内容</p>
+    </div>
+    <div class="print-sheet" id="print-sheet"></div>
+  `;
+  el.innerHTML = html;
+}
+
+function doPrint() {
+  const sheet = document.getElementById('print-sheet');
+  let html = '';
+  const unitLabel = state.unit === 'all' ? '全部单元' : `Unit ${state.unit}`;
+
+  html += `<h1 style="text-align:center;font-size:20px;margin-bottom:4px;">7A英语单词复习 · 中译英练习卷</h1>`;
+  html += `<p style="text-align:center;font-size:13px;color:#666;margin-bottom:16px;">范围：${unitLabel} · 姓名：__________ · 日期：__________</p>`;
+
+  // Words
+  const words = getItems('words');
+  if (words.length) {
+    html += `<h2>一、单词（共${words.length}个）</h2><div class="print-grid cols-5">`;
+    words.forEach((w, i) => {
+      html += `<div class="print-cell"><span class="prompt">${i+1}. ${w.zh}</span><div class="write-line"></div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Phrases
+  const phrases = getItems('phrases');
+  if (phrases.length) {
+    html += `<h2>二、词组（共${phrases.length}个）</h2><div class="print-grid cols-3">`;
+    phrases.forEach((p, i) => {
+      html += `<div class="print-cell"><span class="prompt">${i+1}. ${p.zh}</span><div class="write-line"></div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Sentences
+  const sentences = getItems('sentences');
+  if (sentences.length) {
+    html += `<h2>三、句子（共${sentences.length}个）</h2>`;
+    sentences.forEach((s, i) => {
+      html += `<div class="print-item"><span class="prompt">${i+1}. ${s.zh}</span><div class="write-line"></div></div>`;
+    });
+  }
+
+  sheet.innerHTML = html;
+  sheet.style.display = 'block';
+  setTimeout(() => window.print(), 200);
+  setTimeout(() => { sheet.style.display = 'none'; }, 1000);
+}
+
+// ========== RESET ==========
+function resetProgress() {
+  if (!confirm('确定要重置所有进度吗？此操作不可撤销。')) return;
+  state.answers = {};
+  state.grammarAnswers = {};
+  localStorage.removeItem('7a_words_review_progress');
+  render();
+}
+
+// ========== INIT ==========
+loadProgress();
+render();
+</script>
+</body>
+</html>
