@@ -827,9 +827,12 @@ let state = {
   answers: {}, // key: "tab-unit-index" -> {correct:bool}
   grammarAnswers: {},
   // flashcards (spaced repetition)
-  flashcards: {},      // key "type:index" -> {box, next}
+  flashcards: {},      // key "type:index" -> {box, next, seen}
   flashType: 'all',    // all | words | phrases | sentences | grammar
   flashDir: 'zh2en',   // zh2en | en2zh (words/phrases/sentences only)
+  flashLimit: 10,      // max NEW cards introduced per day
+  flashDaily: { date: '', count: 0 }, // new cards already studied today
+  flashIgnoreLimit: false, // session override: study beyond today's limit
   flashQueue: [],
   flashPos: 0,
   flashFlipped: false,
@@ -852,6 +855,8 @@ function loadProgress() {
       state.flashcards = p.flashcards || {};
       if (p.flashType) state.flashType = p.flashType;
       if (p.flashDir) state.flashDir = p.flashDir;
+      if (p.flashLimit) state.flashLimit = p.flashLimit;
+      if (p.flashDaily) state.flashDaily = p.flashDaily;
     }
   } catch(e) {}
 }
@@ -863,6 +868,8 @@ function saveProgress() {
       flashcards: state.flashcards,
       flashType: state.flashType,
       flashDir: state.flashDir,
+      flashLimit: state.flashLimit,
+      flashDaily: state.flashDaily,
     }));
   } catch(e) {}
 }
@@ -1267,8 +1274,24 @@ function fcAudio(t) {
   return ` <button class="tts-btn" style="width:32px;height:32px;font-size:15px;vertical-align:middle;" onclick="event.stopPropagation();speak('${t.replace(/'/g,"\\'")}')">🔊</button>`;
 }
 function fcId(type, item) { return type + ':' + DATA[type].indexOf(item); }
+function fcToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+function resetDailyIfNeeded() {
+  const today = fcToday();
+  if (state.flashDaily.date !== today) state.flashDaily = { date: today, count: 0 };
+}
+function fcShuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 function flashSig() {
-  return [state.unit, state.flashType, state.flashStudyAll ? 'all' : 'due'].join('|');
+  return [state.unit, state.flashType, state.flashStudyAll ? 'all' : 'due',
+    state.flashIgnoreLimit ? 'nolim' : 'lim', state.flashLimit, fcToday()].join('|');
 }
 function flashPool() {
   const types = state.flashType === 'all' ? ['words','phrases','sentences','grammar'] : [state.flashType];
@@ -1282,14 +1305,29 @@ function fcDue(card, now) {
   const p = state.flashcards[card.id];
   return !p || (p.next || 0) <= now;
 }
+function fcSeenToday(card) {
+  const today = fcToday();
+  return (state.flashcards[card.id] || {}).seen === today;
+}
 function buildFlashQueue() {
+  resetDailyIfNeeded();
   const now = Date.now();
-  let cards = flashPool();
-  if (!state.flashStudyAll) cards = cards.filter(c => fcDue(c, now));
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
+  let cards;
+  if (state.flashStudyAll) {
+    cards = flashPool();                              // cram: every card, ignore schedule & limit
+  } else {
+    const due = flashPool().filter(c => fcDue(c, now));
+    if (state.flashIgnoreLimit) {
+      cards = due;                                    // all due today, ignore daily limit
+    } else {
+      // forgotten-today cards keep practising freely; new intake capped by remaining quota
+      const seenToday = due.filter(c => fcSeenToday(c));
+      const fresh = fcShuffle(due.filter(c => !fcSeenToday(c)));
+      const remaining = Math.max(0, state.flashLimit - state.flashDaily.count);
+      cards = seenToday.concat(fresh.slice(0, remaining));
+    }
   }
+  fcShuffle(cards);
   state.flashQueue = cards;
   state.flashPos = 0;
   state.flashFlipped = false;
@@ -1300,16 +1338,26 @@ function buildFlashQueue() {
 function renderFlashcards(el) {
   if (state.flashSig !== flashSig()) buildFlashQueue();
 
+  resetDailyIfNeeded();
   const pool = flashPool();
   const now = Date.now();
-  const dueCount = pool.filter(c => fcDue(c, now)).length;
+  const due = pool.filter(c => fcDue(c, now));
+  const dueCount = due.length;
   const masteredCount = pool.filter(c => { const p = state.flashcards[c.id]; return p && p.box >= 5; }).length;
+  const freshDue = due.filter(c => !fcSeenToday(c)).length; // new cards still locked behind today's limit
+  const todayLeft = Math.max(0, state.flashLimit - state.flashDaily.count);
 
   let head = `<div class="fc-types">`;
   FC_TYPES.forEach(t => {
     head += `<button class="btn btn-outline ${state.flashType===t.key?'active':''}" onclick="setFlashType('${t.key}')">${t.label}</button>`;
   });
   head += `</div>`;
+  head += `<div class="fc-types" style="align-items:center;">
+      <span style="font-size:13px;color:var(--text-light);">每日新卡：</span>
+      <input type="number" min="1" max="999" value="${state.flashLimit}" onchange="setFlashLimit(this.value)"
+        style="width:64px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:14px;">
+      <span style="font-size:13px;color:var(--text-light);">张 · 今日已学 ${state.flashDaily.count}</span>
+    </div>`;
   head += `<div class="stats">
       <span>本组共 ${pool.length} 张</span>
       <span>待复习 ${dueCount}</span>
@@ -1322,13 +1370,25 @@ function renderFlashcards(el) {
       el.innerHTML = head + `<div class="fc-summary"><p style="color:var(--text-light)">该单元没有可用的闪卡内容</p></div>`;
       return;
     }
-    const finished = state.flashQueue.length > 0;
+    // reached today's new-card limit but more new cards remain
+    const limitReached = !state.flashStudyAll && !state.flashIgnoreLimit && todayLeft <= 0 && freshDue > 0;
+    let msg, primaryBtn;
+    if (limitReached) {
+      msg = `🎯 今日已学满 ${state.flashLimit} 张，明天继续！还有 ${freshDue} 张新卡待解锁。`;
+      primaryBtn = `<button class="btn btn-primary" onclick="continueIgnoreLimit()">继续学习（忽略每日上限）</button>`;
+    } else if (dueCount > 0) {
+      msg = `本轮完成！标记掌握 ${state.flashRoundDone} 张，还有 ${dueCount} 张待复习。`;
+      primaryBtn = `<button class="btn btn-primary" onclick="restartFlash(false)">继续复习</button>`;
+    } else {
+      msg = state.flashRoundDone > 0 ? `🎉 本轮完成！标记掌握 ${state.flashRoundDone} 张。今日复习已清空。` : '本组暂无待复习的卡片。';
+      primaryBtn = `<button class="btn btn-primary" onclick="restartFlash(false)">检查待复习</button>`;
+    }
     el.innerHTML = head + `
       <div class="fc-summary">
-        <div class="big">🎉</div>
-        <p style="font-size:18px;margin:8px 0;">${finished ? `本轮完成！标记掌握 ${state.flashRoundDone} 张` : '本组暂无待复习的卡片'}</p>
+        <div class="big">${limitReached ? '🎯' : '🎉'}</div>
+        <p style="font-size:18px;margin:8px 0;">${msg}</p>
         <div class="controls" style="justify-content:center;">
-          <button class="btn btn-primary" onclick="restartFlash(false)">${finished ? '再来一组（待复习）' : '检查待复习'}</button>
+          ${primaryBtn}
           <button class="btn btn-outline" onclick="restartFlash(true)">复习全部（忽略时间表）</button>
         </div>
       </div>`;
@@ -1396,8 +1456,12 @@ function flipCard() {
 function gradeCard(known) {
   const card = state.flashQueue[state.flashPos];
   if (!card) return;
+  resetDailyIfNeeded();
   const now = Date.now();
+  const today = fcToday();
   const p = state.flashcards[card.id] || { box: 0, next: 0 };
+  if (p.seen !== today) state.flashDaily.count++; // count each new card once per day
+  p.seen = today;
   if (known) {
     p.box = Math.min(5, (p.box || 0) + 1);
     p.next = now + FC_INTERVALS[p.box];
@@ -1416,8 +1480,26 @@ function gradeCard(known) {
 function setFlashType(t) {
   state.flashType = t;
   state.flashStudyAll = false;
+  state.flashIgnoreLimit = false;
   buildFlashQueue();
   saveProgress();
+  render();
+}
+function setFlashLimit(v) {
+  let n = parseInt(v, 10);
+  if (isNaN(n)) return;
+  n = Math.max(1, Math.min(999, n));
+  state.flashLimit = n;
+  state.flashStudyAll = false;
+  state.flashIgnoreLimit = false;
+  buildFlashQueue();
+  saveProgress();
+  render();
+}
+function continueIgnoreLimit() {
+  state.flashIgnoreLimit = true;
+  state.flashStudyAll = false;
+  buildFlashQueue();
   render();
 }
 function toggleFlashDir() {
@@ -1428,6 +1510,7 @@ function toggleFlashDir() {
 }
 function restartFlash(studyAll) {
   state.flashStudyAll = !!studyAll;
+  state.flashIgnoreLimit = false;
   buildFlashQueue();
   render();
 }
@@ -1497,6 +1580,9 @@ function resetProgress() {
   state.answers = {};
   state.grammarAnswers = {};
   state.flashcards = {};
+  state.flashDaily = { date: '', count: 0 };
+  state.flashIgnoreLimit = false;
+  state.flashStudyAll = false;
   state.flashQueue = [];
   state.flashPos = 0;
   state.flashSig = '';
