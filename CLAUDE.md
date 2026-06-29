@@ -13,10 +13,8 @@
 | `7A单词/` | 7A wordlist 截图数据源（1-6.jpeg，单词 + 词组） |
 | `7A句子/` | 7A Notes 截图数据源（132-139.jpeg，重点句子 + 讲解短语） |
 | `7A语法/` | 7A Grammar check 截图数据源（140-148.jpeg，每单元语法讲解） |
-| `6B知识梳理单.html` | 6B U1-U6 原始学习资料（数据源） |
-| `6B知识梳理单.pdf` | 6B U1-U6 原始学习资料 PDF 版 |
-| `6B U7 知识梳理.docx` | 6B U7 Summer holiday 知识梳理（数据源） |
-| `6B U8 知识梳理.docx` | 6B U8 Our dreams 知识梳理（数据源） |
+
+> 注：6B 的原始数据源文件（`6B知识梳理单.html/.pdf`、`6B U7/U8 知识梳理.docx`）已删除；6B 的全部数据已内嵌在 `6B_review.html` 中。
 
 > `7A单词_review.html` 由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab，去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`。数据规模：words 351 / phrases 71 / sentences 55 / grammar 69（53 选择 + 16 填空），均覆盖 Unit 1-8。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
 
