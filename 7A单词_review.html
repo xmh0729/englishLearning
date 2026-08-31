@@ -46,7 +46,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 /* Main area */
 .main { margin-left: var(--sidebar-w); min-height:100vh; }
 .header {
-  background: var(--card); height: var(--header-h); display:flex; align-items:center;
+  background: var(--card); min-height: var(--header-h); display:flex; align-items:center;
   padding:0 24px; border-bottom:1px solid var(--border); gap:8px; flex-wrap:wrap;
   position:sticky; top:0; z-index:50;
 }
@@ -133,6 +133,27 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .fc-summary { text-align:center; padding:48px 20px; }
 .fc-summary .big { font-size:40px; font-weight:700; color:var(--primary); }
 
+/* Reading (朗读训练) */
+.read-unit { font-size:17px; margin:18px 0 8px; display:flex; justify-content:space-between; align-items:baseline; }
+.read-unit span { font-size:13px; color:var(--text-light); font-weight:400; }
+.read-card {
+  background:var(--card); border:1px solid var(--border); border-left:4px solid var(--border);
+  border-radius:12px; padding:16px; margin-bottom:12px; transition:border-color .2s;
+}
+.read-card.done { border-left-color:var(--success); }
+.read-card.recording { border-color:var(--danger); border-left-color:var(--danger); }
+.read-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+.read-title { font-size:16px; font-weight:600; }
+.read-dur { font-size:13px; color:var(--text-light); }
+.read-card audio { width:100%; height:36px; margin-bottom:10px; }
+.read-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.btn.sm { padding:5px 10px; font-size:12px; }
+.read-msg { margin-top:8px; font-size:13px; color:var(--warning); }
+.read-card.recording .read-title::after {
+  content:' ● 录音中'; color:var(--danger); font-size:13px; font-weight:400; animation:read-pulse 1s infinite;
+}
+@keyframes read-pulse { 50% { opacity:.25; } }
+
 /* Grammar */
 .grammar-card { background:var(--card); border-radius:12px; padding:20px; margin-bottom:12px; border:1px solid var(--border); }
 .grammar-card .question { font-size:16px; margin-bottom:12px; line-height:1.6; }
@@ -213,6 +234,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     <button class="tab-btn" onclick="selectTab('sentences')">句子听写</button>
     <button class="tab-btn" onclick="selectTab('grammar')">语法练习</button>
     <button class="tab-btn" onclick="selectTab('flashcards')">🎴 闪卡</button>
+    <button class="tab-btn" onclick="selectTab('reading')">🎤 朗读</button>
     <button class="tab-btn" onclick="selectTab('print')">打印练习</button>
   </div>
   <div class="content" id="content"></div>
@@ -816,6 +838,82 @@ grammar: [
 ],
 };
 
+// ========== READINGS (朗读训练·教材录音) ==========
+// 数据源：`7A 单词录音、课文录音/7A Unit{u} 单词录音、课文录音/` 目录下的 MP3
+// 注意：Unit 4 的 Reading 文件名是双空格 + 小写扩展名（源文件如此）
+const READINGS = [
+  // Unit 1
+  {u:1, part:'words',          title:'单词表',                 file:'7A Unit1 单词.MP3'},
+  {u:1, part:'welcomeA',       title:'Welcome to the unit A',  file:'7A Unit1 Welcome to the unit A.MP3'},
+  {u:1, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit1 Welcome to the unit B.MP3'},
+  {u:1, part:'reading',        title:'Reading 课文',           file:'7A Unit1 Reading.MP3'},
+  {u:1, part:'integrationA',   title:'Integration A',          file:'7A Unit1 Integration A.MP3'},
+  {u:1, part:'integrationC',   title:'Integration C',          file:'7A Unit1 Integration C.MP3'},
+  {u:1, part:'integrationD2',  title:'Integration D2',         file:'7A Unit1 Integration D2.MP3'},
+  {u:1, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 1 Pronunciation.MP3'},
+  {u:1, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 1 Pronunciation C.MP3'},
+  // Unit 2
+  {u:2, part:'words',          title:'单词表',                 file:'7A Unit2 单词.MP3'},
+  {u:2, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit2 Welcome to the unit B.MP3'},
+  {u:2, part:'reading',        title:'Reading 课文',           file:'7A Unit2 Reading.MP3'},
+  {u:2, part:'integrationC',   title:'Integration C',          file:'7A Unit2 Integration C.MP3'},
+  {u:2, part:'integrationD2',  title:'Integration D2',         file:'7A Unit2 Integration D2.MP3'},
+  {u:2, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 2 Pronunciation.MP3'},
+  {u:2, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 2 Pronunciation C.MP3'},
+  // Unit 3
+  {u:3, part:'words',          title:'单词表',                 file:'7A Unit3 单词.MP3'},
+  {u:3, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit3 Welcome to the unit B.MP3'},
+  {u:3, part:'reading',        title:'Reading 课文',           file:'7A Unit3 Reading.MP3'},
+  {u:3, part:'integrationA',   title:'Integration A',          file:'7A Unit3 Integration A.MP3'},
+  {u:3, part:'integrationC',   title:'Integration C',          file:'7A Unit3 Integration C.MP3'},
+  {u:3, part:'integrationD2',  title:'Integration D2',         file:'7A Unit3 Integration D2.MP3'},
+  {u:3, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 3 Pronunciation.MP3'},
+  {u:3, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 3 Pronunciation C.MP3'},
+  // Unit 4（Reading 文件名是双空格 + 小写 .mp3）
+  {u:4, part:'words',          title:'单词表',                 file:'7A Unit4 单词.MP3'},
+  {u:4, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit4 Welcome to the unit B.MP3'},
+  {u:4, part:'reading',        title:'Reading 课文',           file:'7A Unit4  Reading.mp3'},
+  {u:4, part:'integrationC',   title:'Integration C',          file:'7A Unit4 Integration C.MP3'},
+  {u:4, part:'integrationD2',  title:'Integration D2',         file:'7A Unit4 Integration D2.MP3'},
+  {u:4, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 4 Pronunciation.MP3'},
+  {u:4, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 4 Pronunciation C.MP3'},
+  // Unit 5
+  {u:5, part:'words',          title:'单词表',                 file:'7A Unit5 单词.MP3'},
+  {u:5, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit5 Welcome to the unit B.MP3'},
+  {u:5, part:'reading',        title:'Reading 课文',           file:'7A Unit5 Reading.MP3'},
+  {u:5, part:'integrationC',   title:'Integration C',          file:'7A Unit5 Integration C.MP3'},
+  {u:5, part:'integrationD2',  title:'Integration D2',         file:'7A Unit5 Integration D2.MP3'},
+  {u:5, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 5 Pronunciation.MP3'},
+  {u:5, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 5 Pronunciation C.MP3'},
+  // Unit 6
+  {u:6, part:'words',          title:'单词表',                 file:'7A Unit6 单词.MP3'},
+  {u:6, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit6 Welcome to the unit B.MP3'},
+  {u:6, part:'reading',        title:'Reading 课文',           file:'7A Unit6 Reading.MP3'},
+  {u:6, part:'integrationA',   title:'Integration A',          file:'7A Unit6 Integration A.MP3'},
+  {u:6, part:'integrationC',   title:'Integration C',          file:'7A Unit6 Integration C.MP3'},
+  {u:6, part:'integrationD2',  title:'Integration D2',         file:'7A Unit6 Integration D2.MP3'},
+  {u:6, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 6 Pronunciation.MP3'},
+  {u:6, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 6 Pronunciation C.MP3'},
+  // Unit 7
+  {u:7, part:'words',          title:'单词表',                 file:'7A Unit7 单词.MP3'},
+  {u:7, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit7 Welcome to the unit B.MP3'},
+  {u:7, part:'reading',        title:'Reading 课文',           file:'7A Unit7 Reading.MP3'},
+  {u:7, part:'integrationC',   title:'Integration C',          file:'7A Unit7 Integration C.MP3'},
+  {u:7, part:'integrationD2',  title:'Integration D2',         file:'7A Unit7 Integration D2.MP3'},
+  {u:7, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 7 Pronunciation.MP3'},
+  {u:7, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 7 Pronunciation C.MP3'},
+  // Unit 8
+  {u:8, part:'words',          title:'单词表',                 file:'7A Unit8 单词.MP3'},
+  {u:8, part:'welcomeB',       title:'Welcome to the unit B',  file:'7A Unit8 Welcome to the unit B.MP3'},
+  {u:8, part:'reading',        title:'Reading 课文',           file:'7A Unit8 Reading.MP3'},
+  {u:8, part:'integrationA',   title:'Integration A',          file:'7A Unit8 Integration A.MP3'},
+  {u:8, part:'integrationC',   title:'Integration C',          file:'7A Unit8 Integration C.MP3'},
+  {u:8, part:'integrationD2',  title:'Integration D2',         file:'7A Unit8 Integration D2.MP3'},
+  {u:8, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 8 Pronunciation.MP3'},
+  {u:8, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 8 Pronunciation C.MP3'},
+];
+const READ_UNIT_TITLES = {1:'This is me!', 2:'Hobbies', 3:'Welcome to our school', 4:'My day', 5:'Food and lifestyle', 6:'Fashion', 7:'Shopping', 8:'Special days'};
+
 // ========== STATE ==========
 let state = {
   unit: 'all',
@@ -826,6 +924,7 @@ let state = {
   currentIndex: 0,
   answers: {}, // key: "tab-unit-index" -> {correct:bool}
   grammarAnswers: {},
+  readings: {}, // 朗读训练: key "u:part" -> true (已完成)
   // flashcards (spaced repetition)
   flashcards: {},      // key "type:index" -> {box, next, seen}
   flashType: 'all',    // all | words | phrases | sentences | grammar
@@ -852,6 +951,7 @@ function loadProgress() {
       const p = JSON.parse(saved);
       state.answers = p.answers || {};
       state.grammarAnswers = p.grammarAnswers || {};
+      state.readings = p.readings || {};
       state.flashcards = p.flashcards || {};
       if (p.flashType) state.flashType = p.flashType;
       if (p.flashDir) state.flashDir = p.flashDir;
@@ -865,6 +965,7 @@ function saveProgress() {
     localStorage.setItem('7a_words_review_progress', JSON.stringify({
       answers: state.answers,
       grammarAnswers: state.grammarAnswers,
+      readings: state.readings,
       flashcards: state.flashcards,
       flashType: state.flashType,
       flashDir: state.flashDir,
@@ -887,7 +988,7 @@ function selectTab(tab) {
   state.tab = tab;
   document.querySelectorAll('.tab-btn').forEach(el => {
     el.classList.toggle('active', el.textContent.includes(
-      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : '打印'
+      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : tab === 'reading' ? '朗读' : '打印'
     ));
   });
   render();
@@ -963,6 +1064,7 @@ function render() {
   if (state.tab === 'print') return renderPrint(el);
   if (state.tab === 'grammar') return renderGrammar(el);
   if (state.tab === 'flashcards') return renderFlashcards(el);
+  if (state.tab === 'reading') return renderReading(el);
   renderDictation(el);
 }
 
@@ -1513,6 +1615,126 @@ function restartFlash(studyAll) {
   state.flashIgnoreLimit = false;
   buildFlashQueue();
   render();
+}
+
+// ========== READING (朗读训练) ==========
+// 录音只保存在内存（Blob URL），刷新后失效；完成状态持久化到 state.readings
+const _recs = {};                 // "u:part" -> 录音 Blob URL
+let _recRecorder = null, _recStream = null, _recKey = null, _recAudio = null;
+
+function readingsDir(u) { return `7A 单词录音、课文录音/7A Unit${u} 单词录音、课文录音/`; }
+function readKey(r) { return r.u + ':' + r.part; }
+function micSupported() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+
+function renderReading(el) {
+  // 切换单元/离开本视图时，自动结束进行中的录音
+  if (_recRecorder && _recKey && !READINGS.some(r => readKey(r) === _recKey && (state.unit === 'all' || r.u === state.unit))) {
+    stopRecording();
+  }
+  const units = state.unit === 'all' ? [1,2,3,4,5,6,7,8] : [state.unit];
+  let total = 0, done = 0, body = '';
+  units.forEach(u => {
+    const items = READINGS.filter(r => r.u === u);
+    const d = items.filter(r => state.readings[readKey(r)]).length;
+    total += items.length; done += d;
+    body += `<h3 class="read-unit">Unit ${u} ${READ_UNIT_TITLES[u]}<span>${d}/${items.length} 已朗读</span></h3>
+      <div class="progress-bar"><div class="fill" style="width:${items.length ? Math.round(d / items.length * 100) : 0}%"></div></div>`;
+    items.forEach(r => { body += readCardHtml(r); });
+  });
+  el.innerHTML = `<div class="stats">
+      <span>🎧 共 ${total} 段教材录音</span>
+      <span>✅ 已完成 ${done}</span>
+      <span>${micSupported() ? '🎤 可录音跟读对比' : '⚠️ 此浏览器不支持录音，可直接标记完成'}</span>
+    </div>${body}`;
+}
+
+function readCardHtml(r) {
+  const key = readKey(r), done = !!state.readings[key];
+  const recing = _recKey === key && _recRecorder;
+  return `<div class="read-card ${done ? 'done' : ''} ${recing ? 'recording' : ''}" id="rc-${r.u}-${r.part}">
+    <div class="read-head">
+      <span class="read-title">${r.title}</span>
+      <span class="read-dur" id="dur-${r.u}-${r.part}"></span>
+    </div>
+    <audio controls preload="metadata" src="${encodeURI(readingsDir(r.u) + r.file)}"
+      onloadedmetadata="readShowDur(this,'${r.u}-${r.part}')"></audio>
+    <div class="read-actions">
+      <button class="btn btn-outline sm" onclick="readSpeed(this,0.75)">🐢 0.75x</button>
+      <button class="btn btn-outline sm active" onclick="readSpeed(this,1)">1x</button>
+      ${micSupported() ? (recing
+        ? `<button class="btn btn-danger" onclick="stopRecording()">⏹️ 停止录音</button>`
+        : `<button class="btn btn-primary" onclick="startRecording(${r.u},'${r.part}')">🎙️ 录音跟读</button>`) : ''}
+      ${_recs[key] ? `<button class="btn btn-success" onclick="playRecording('${key}')">▶️ 听我的</button>` : ''}
+      <button class="btn ${done ? 'btn-outline' : 'btn-success'}" onclick="toggleReadDone(${r.u},'${r.part}')">${done ? '↩️ 取消完成' : '✅ 标记完成'}</button>
+    </div>
+  </div>`;
+}
+
+function readShowDur(a, id) {
+  const el = document.getElementById('dur-' + id);
+  if (el && isFinite(a.duration) && a.duration > 0) {
+    el.textContent = Math.floor(a.duration / 60) + ':' + String(Math.floor(a.duration % 60)).padStart(2, '0');
+  }
+}
+function readSpeed(btn, rate) {
+  const a = btn.closest('.read-card').querySelector('audio');
+  if (a) a.playbackRate = rate;
+  btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleReadDone(u, part) {
+  const key = u + ':' + part;
+  if (state.readings[key]) delete state.readings[key]; else state.readings[key] = true;
+  saveProgress();
+  render();
+}
+
+async function startRecording(u, part) {
+  if (_recRecorder) { stopRecording(); return; } // 已在录音：先停止上一段
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    const box = document.getElementById('rc-' + u + '-' + part);
+    if (box && !box.querySelector('.read-msg')) {
+      const m = document.createElement('div');
+      m.className = 'read-msg';
+      m.textContent = '⚠️ 无法访问麦克风' + (e && e.name === 'NotAllowedError' ? '（权限被拒绝）' : '') + '，可直接点击「标记完成」';
+      box.appendChild(m);
+    }
+    return;
+  }
+  const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  const key = u + ':' + part, chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    _recRecorder = null; _recStream = null; _recKey = null;
+    if (chunks.length) {
+      if (_recs[key]) URL.revokeObjectURL(_recs[key]);
+      _recs[key] = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/webm' }));
+      state.readings[key] = true; // 完成一次跟读即视为已朗读
+      saveProgress();
+    }
+    render();
+  };
+  _recRecorder = rec; _recStream = stream; _recKey = key;
+  rec.start();
+  render();
+}
+function stopRecording() {
+  if (_recRecorder && _recRecorder.state !== 'inactive') { _recRecorder.stop(); return; }
+  if (_recStream) { _recStream.getTracks().forEach(t => t.stop()); _recStream = null; }
+  _recRecorder = null; _recKey = null;
+}
+function playRecording(key) {
+  if (!_recs[key]) return;
+  if (_recAudio) _recAudio.pause();
+  _recAudio = new Audio(_recs[key]);
+  _recAudio.play();
 }
 
 // ========== PRINT ==========

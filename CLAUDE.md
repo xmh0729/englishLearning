@@ -13,10 +13,17 @@
 | `7A单词/` | 7A wordlist 截图数据源（1-6.jpeg，单词 + 词组） |
 | `7A句子/` | 7A Notes 截图数据源（132-139.jpeg，重点句子 + 讲解短语） |
 | `7A语法/` | 7A Grammar check 截图数据源（140-148.jpeg，每单元语法讲解） |
+| `7A 单词录音、课文录音/` | 7A 教材配套 MP3（8 个单元子目录共 61 个文件，🎤 朗读 tab 的音频源；已提交进 git，Pages 线上可用） |
 
 > 注：6B 的原始数据源文件（`6B知识梳理单.html/.pdf`、`6B U7/U8 知识梳理.docx`）已删除；6B 的全部数据已内嵌在 `6B_review.html` 中。
 
-> `7A单词_review.html` 由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab，去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`。数据规模：words 351 / phrases 71 / sentences 55 / grammar 69（53 选择 + 16 填空），均覆盖 Unit 1-8。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
+> `7A单词_review.html` 由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab 并新增「🎴 闪卡」与「🎤 朗读」两个 tab（共七个），去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`。数据规模：words 351 / phrases 71 / sentences 55 / grammar 69（53 选择 + 16 填空）/ readings 61 段教材录音，均覆盖 Unit 1-8。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
+
+### 🎤 朗读 tab（7A 独有）
+
+- 数据为 `READINGS` 数组（61 条）：`{u, part, title, file}`，`file` 是相对 `7A 单词录音、课文录音/7A Unit{u} 单词录音、课文录音/` 的文件名（⚠️ Unit 4 Reading 文件名是双空格 + 小写 `.mp3`，源文件如此）；音频地址用 `encodeURI()` 编码。
+- 每段录音一张卡片：原生 `<audio>` 播放器（0.75x/1x 调速）+ 🎙️ 录音跟读（`getUserMedia` + `MediaRecorder`，浏览器本地录音）+ 标记完成。
+- 录音 Blob 只存内存（模块级 `_recs`，刷新失效，不进 localStorage）；完成一次跟读自动标记已朗读。完成状态存 `state.readings`（key `"{u}:{part}"` → true），随 `loadProgress`/`saveProgress` 持久化。
 
 ## Architecture
 
