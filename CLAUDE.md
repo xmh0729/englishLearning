@@ -18,7 +18,7 @@
 
 > 注：6B 的原始数据源文件（`6B知识梳理单.html/.pdf`、`6B U7/U8 知识梳理.docx`）已删除；6B 的全部数据已内嵌在 `6B_review.html` 中。
 
-> `7A.html`（原名 `7A单词_review.html`）由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab 并新增「🎴 闪卡」「🎤 朗读」「✍️ 默写卷」三个 tab（共八个），去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`。数据规模：words 352 / phrases 110 / sentences 75 / grammar 69（53 选择 + 16 填空）/ readings 61 段教材录音（Unit 1-8）+ DICTATION 默写卷 7 节（Unit 1）。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
+> `7A.html`（原名 `7A单词_review.html`）由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab 并新增「🎴 闪卡」「🎤 朗读」「✍️ 默写卷」三个 tab（共八个），去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`（`state.unit` 也随进度保存，重新打开页面自动恢复上次选中的单元）。数据规模：words 352 / phrases 110 / sentences 75 / grammar 69（53 选择 + 16 填空）/ readings 61 段教材录音（Unit 1-8）+ DICTATION 默写卷 7 节（Unit 1）。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
 
 ### 🎤 朗读 tab（7A 独有）
 
@@ -30,7 +30,7 @@
 
 - 数据为 `DICTATION` 数组，每单元多个分节（数据源 `7A默写/2026 7A U1默写卷.docx`）：`{u, sec, label, rev, words, phrases, sentences}`；U1 共 7 节（Welcome / Reading I / Reading II / Grammar & Pronunciation / Integration A-C / Integration D / 词组卷）。
 - 每节按原卷顺序分四组：`rev`（英译中复习，👁 点击显示中文，不录入）、`words` / `phrases` / `sentences`（看中文默写英文，输入 + 校验）。条目格式 `{zh, en, alt?, given?}`：`alt` 为可接受的其他写法（`checkAnyAnswer` 任一命中即算对，主 DATA 的 words/phrases/sentences 同样支持 `alt`）；句子的 `given` 是原卷填空支架，显示为提示、答案仍是完整句。
-- 进度 key `dict-{u}-{sec}-{type}-{i}`，存 `state.dictAnswers`（`{correct, userInput}` 或 `{revealed:true}`），随 `loadProgress`/`saveProgress` 持久化；「重做本组」按当前单元清除。
+- 进度 key `dict-{u}-{sec}-{type}-{i}`，存 `state.dictAnswers`（`{correct, userInput}` 或 `{revealed:true}`），随 `loadProgress`/`saveProgress` 持久化；重做分两级：顶部「重做本单元」（`clearDictProgress`，按当前单元清除）和每节节头的「↩️ 重做本节」（`clearDictSection`，只清该分节，有作答记录时才显示）。
 - 「🖨️ 打印默写卷」按原卷版式生成可打印空白卷（Revision/Words(词性)/Phrases/Sentences 分组，填空句带支架），支持 `print-grid cols-2/3/5`。
 - 默写卷的知识点已同步合并进主 DATA（U1：words +age，phrases +39 条，sentences +20 条），因此闪卡/单元听写/打印练习都能覆盖。
 

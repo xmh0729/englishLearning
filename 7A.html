@@ -180,6 +180,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 .dict-sec h3 { font-size:17px; margin-bottom:2px; }
 .dict-sec .dict-sub { font-size:13px; color:var(--text-light); margin-bottom:6px; }
+.dict-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; flex-wrap:wrap; }
 .dict-group-title { font-size:14px; font-weight:600; color:var(--primary-dark); margin:16px 0 4px; }
 .dict-group-title small { font-weight:400; color:var(--text-light); }
 .dict-row { display:flex; gap:8px; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border); flex-wrap:wrap; }
@@ -1253,6 +1254,7 @@ function loadProgress() {
       if (p.flashDir) state.flashDir = p.flashDir;
       if (p.flashLimit) state.flashLimit = p.flashLimit;
       if (p.flashDaily) state.flashDaily = p.flashDaily;
+      if (p.unit === 'all' || (Number.isInteger(p.unit) && p.unit >= 1 && p.unit <= 8)) state.unit = p.unit;
     }
   } catch(e) {}
 }
@@ -1268,17 +1270,22 @@ function saveProgress() {
       flashDir: state.flashDir,
       flashLimit: state.flashLimit,
       flashDaily: state.flashDaily,
+      unit: state.unit,
     }));
   } catch(e) {}
 }
 
 // ========== NAVIGATION ==========
+function syncSidebarUnit() {
+  document.querySelectorAll('.sidebar .nav-item').forEach((el, i) => {
+    el.classList.toggle('active', (state.unit === 'all' && i === 0) || (state.unit === i));
+  });
+}
 function selectUnit(u) {
   state.unit = u;
-  document.querySelectorAll('.sidebar .nav-item').forEach((el, i) => {
-    el.classList.toggle('active', (u === 'all' && i === 0) || (u === i));
-  });
+  syncSidebarUnit();
   if (window.innerWidth < 768) toggleSidebar();
+  saveProgress(); // 记住上次选中的单元
   render();
 }
 function selectTab(tab) {
@@ -2074,7 +2081,7 @@ function renderDictPaper(el) {
       <span>正确率 ${answered > 0 ? Math.round(correct/answered*100) : 0}%</span>
     </div>
     <div class="controls">
-      <button class="btn btn-warning" onclick="clearDictProgress()">重做本组</button>
+      <button class="btn btn-warning" onclick="clearDictProgress()">重做本单元</button>
       <button class="btn btn-outline" onclick="doPrintDict()">🖨️ 打印默写卷</button>
     </div>
   `;
@@ -2083,8 +2090,13 @@ function renderDictPaper(el) {
     const sTotal = DICT_GROUPS.reduce((n, g) => n + (s[g.type] || []).length, 0);
     const sDone = DICT_GROUPS.reduce((n, g) => n + (s[g.type] || []).filter((_, i) => state.dictAnswers[dictKey(s, g.type, i)]).length, 0);
     html += `<div class="dict-sec">
-      <h3>Unit ${s.u} · ${s.label}</h3>
-      <div class="dict-sub">${sTotal} 题 · 已完成 ${sDone}/${sTotal}</div>`;
+      <div class="dict-head">
+        <div>
+          <h3>Unit ${s.u} · ${s.label}</h3>
+          <div class="dict-sub">${sTotal} 题 · 已完成 ${sDone}/${sTotal}</div>
+        </div>
+        ${sDone > 0 ? `<button class="btn btn-outline sm" onclick="clearDictSection(${si})">↩️ 重做本节</button>` : ''}
+      </div>`;
     DICT_GROUPS.forEach(g => {
       const items = s[g.type] || [];
       if (!items.length) return;
@@ -2175,6 +2187,17 @@ function clearDictProgress() {
   dictSections().forEach(s => DICT_GROUPS.forEach(g => {
     (s[g.type] || []).forEach((_, i) => delete state.dictAnswers[dictKey(s, g.type, i)]);
   }));
+  saveProgress();
+  render();
+}
+
+// 只重做某一个分节（如 Unit 1 · Welcome），不影响其他节
+function clearDictSection(si) {
+  const s = dictSections()[si];
+  if (!s) return;
+  DICT_GROUPS.forEach(g => {
+    (s[g.type] || []).forEach((_, i) => delete state.dictAnswers[dictKey(s, g.type, i)]);
+  });
   saveProgress();
   render();
 }
@@ -2312,6 +2335,7 @@ function resetProgress() {
 
 // ========== INIT ==========
 loadProgress();
+syncSidebarUnit(); // 恢复上次选中的单元
 render();
 </script>
 </body>
