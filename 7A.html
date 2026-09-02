@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>7A英语单词复习</title>
+<title>7A英语复习</title>
 <style>
 :root {
   --primary: #2980b9;
@@ -173,6 +173,36 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .grammar-card .fill-input.correct { border-color:var(--success); background:#eafaf1; }
 .grammar-card .fill-input.wrong { border-color:var(--danger); background:#fdedec; }
 
+/* Dictation paper (默写卷) */
+.dict-sec {
+  background:var(--card); border-radius:12px; padding:20px 24px; margin-bottom:16px;
+  border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.dict-sec h3 { font-size:17px; margin-bottom:2px; }
+.dict-sec .dict-sub { font-size:13px; color:var(--text-light); margin-bottom:6px; }
+.dict-group-title { font-size:14px; font-weight:600; color:var(--primary-dark); margin:16px 0 4px; }
+.dict-group-title small { font-weight:400; color:var(--text-light); }
+.dict-row { display:flex; gap:8px; align-items:center; padding:8px 0; border-bottom:1px dashed var(--border); flex-wrap:wrap; }
+.dict-row:last-child { border-bottom:none; }
+.dict-row .no { width:24px; flex-shrink:0; color:var(--text-light); font-size:12px; }
+.dict-row .prompt { flex:1; min-width:140px; font-size:15px; line-height:1.5; }
+.dict-row .prompt.en-rev { font-size:15px; }
+.dict-row input[type=text] {
+  flex:1.4; min-width:170px; max-width:420px; padding:7px 10px; border:2px solid var(--border);
+  border-radius:6px; font-size:14px; outline:none; transition:border-color .2s;
+}
+.dict-row input[type=text]:focus { border-color:var(--primary); }
+.dict-row input.correct { border-color:var(--success); background:#eafaf1; }
+.dict-row input.wrong { border-color:var(--danger); background:#fdedec; }
+.dict-row .ans { font-size:13px; }
+.dict-row.sent { flex-direction:column; align-items:stretch; }
+.dict-row.sent .prompt { min-width:0; }
+.dict-given {
+  width:100%; font-size:13px; color:var(--text-light); background:var(--bg);
+  border-radius:6px; padding:6px 10px; margin-top:4px; line-height:1.6; font-family:inherit;
+}
+.dict-rev-zh { font-size:14px; color:var(--success); flex:1; min-width:140px; }
+
 /* Print styles */
 @media print {
   .sidebar, .hamburger, .overlay, .header, .controls, .progress-bar, .stats, .btn, .tts-btn, .no-print { display:none!important; }
@@ -186,6 +216,8 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   .print-grid { display:grid; gap:4px 12px; }
   .print-grid.cols-5 { grid-template-columns:repeat(5, 1fr); }
   .print-grid.cols-3 { grid-template-columns:repeat(3, 1fr); }
+  .print-grid.cols-2 { grid-template-columns:repeat(2, 1fr); }
+  .print-sheet .print-sub { font-size:13px; font-weight:600; margin:10px 0 2px; }
   .print-cell { page-break-inside:avoid; padding:4px 0; }
   .print-cell .prompt { font-size:12px; }
   .print-cell .write-line { border-bottom:1px solid #999; height:24px; margin-top:2px; }
@@ -212,7 +244,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <nav class="sidebar" id="sidebar">
-  <h2>📖 7A单词复习</h2>
+  <h2>📖 7A复习</h2>
   <button class="nav-item active" onclick="selectUnit('all')">全部单元</button>
   <button class="nav-item" onclick="selectUnit(1)">Unit 1 This is me!</button>
   <button class="nav-item" onclick="selectUnit(2)">Unit 2 Hobbies</button>
@@ -235,6 +267,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     <button class="tab-btn" onclick="selectTab('grammar')">语法练习</button>
     <button class="tab-btn" onclick="selectTab('flashcards')">🎴 闪卡</button>
     <button class="tab-btn" onclick="selectTab('reading')">🎤 朗读</button>
+    <button class="tab-btn" onclick="selectTab('dict')">✍️ 默写卷</button>
     <button class="tab-btn" onclick="selectTab('print')">打印练习</button>
   </div>
   <div class="content" id="content"></div>
@@ -275,6 +308,7 @@ words: [
   {u:1, en:"problem", zh:"难题，困难"},
   {u:1, en:"weekend", zh:"周末"},
   {u:1, en:"fun", zh:"乐趣，开心"},
+  {u:1, en:"age", zh:"年龄"},
   // Unit 2 Hobbies
   {u:2, en:"jog", zh:"慢跑"},
   {u:2, en:"paint", zh:"绘画，上油漆"},
@@ -616,6 +650,46 @@ phrases: [
   {u:1, en:"Chinese chess", zh:"中国象棋"},
   {u:1, en:"at the weekend", zh:"在周末"},
   {u:1, en:"make friends with", zh:"与…交朋友"},
+  // 以下来自 Unit 1 默写卷（7A默写/2026 7A U1默写卷.docx）
+  {u:1, en:"make new friends", zh:"交新朋友"},
+  {u:1, en:"in the same class", zh:"在同一个班级"},
+  {u:1, en:"my English/Chinese name", zh:"我的英文/中文名"},
+  {u:1, en:"good afternoon", zh:"下午好"},
+  {u:1, en:"in Class 1, Grade 7", zh:"在七年级1班", alt:["in Class One, Grade Seven"]},
+  {u:1, en:"be good at sports", zh:"擅长运动"},
+  {u:1, en:"have long hair", zh:"留着长发"},
+  {u:1, en:"wear glasses", zh:"戴眼镜"},
+  {u:1, en:"play the piano well", zh:"钢琴弹得好"},
+  {u:1, en:"be friendly to each other", zh:"对彼此友好"},
+  {u:1, en:"a new student at Sunshine Middle School", zh:"阳光中学的一名新生"},
+  {u:1, en:"enjoy reading", zh:"喜欢阅读", alt:["love reading","like reading"]},
+  {u:1, en:"be good at doing sth", zh:"擅长做某事"},
+  {u:1, en:"play football", zh:"踢足球"},
+  {u:1, en:"after school", zh:"放学后"},
+  {u:1, en:"my favourite teacher", zh:"我最喜欢的老师"},
+  {u:1, en:"the girl over there", zh:"在那边的女孩"},
+  {u:1, en:"ride a bike to school", zh:"骑车上学", alt:["go to school by bike"]},
+  {u:1, en:"take a bus home", zh:"坐公交回家", alt:["go home by bus"]},
+  {u:1, en:"be good at swimming", zh:"擅长游泳"},
+  {u:1, en:"have a football match with Class 2", zh:"和二班有一场足球赛"},
+  {u:1, en:"this afternoon", zh:"今天下午"},
+  {u:1, en:"play ping-pong", zh:"打乒乓球", alt:["play table tennis"]},
+  {u:1, en:"how to greet others", zh:"如何问候其他人"},
+  {u:1, en:"introduce each other", zh:"介绍彼此"},
+  {u:1, en:"be full of energy", zh:"充满能量"},
+  {u:1, en:"tall and slim", zh:"又高又苗条"},
+  {u:1, en:"play football after school", zh:"放学后踢足球"},
+  {u:1, en:"be ready to help others", zh:"乐于助人"},
+  {u:1, en:"be interested in science", zh:"对科学感兴趣"},
+  {u:1, en:"the girls over there", zh:"在那边的女孩们"},
+  {u:1, en:"like this school very much", zh:"很喜欢这所学校"},
+  {u:1, en:"be easy/hard for me", zh:"对我来说简单/难"},
+  {u:1, en:"my favourite subject", zh:"我最喜欢的科目"},
+  {u:1, en:"shy and quiet", zh:"害羞又文静"},
+  {u:1, en:"help sb do sth/with sth", zh:"帮助某人做某事", alt:["help sb do sth","help sb with sth","help sb to do sth"]},
+  {u:1, en:"help my classmates with Maths problems", zh:"帮我的同学解决数学问题"},
+  {u:1, en:"love playing chess and ping-pong", zh:"喜欢下象棋和打乒乓球"},
+  {u:1, en:"want to make friends with sb", zh:"想要与某人交朋友"},
   // Unit 2
   {u:2, en:"all kinds of", zh:"各种各样的"},
   {u:2, en:"take apart", zh:"拆卸，拆开(机器等)"},
@@ -695,6 +769,27 @@ sentences: [
   {u:1, en:"Ms Lin, this is my classmate Simon.", zh:"林老师，这是我的同学西蒙。"},
   {u:1, en:"Sport helps me stay healthy and happy.", zh:"运动帮助我保持健康和愉悦。"},
   {u:1, en:"I enjoy playing Chinese chess and ping-pong.", zh:"我喜爱下中国象棋和打乒乓球。"},
+  // 以下来自 Unit 1 默写卷（7A默写/2026 7A U1默写卷.docx）
+  {u:1, en:"What's your name?", zh:"你叫什么？", alt:["What is your name?"]},
+  {u:1, en:"Which class are you in?", zh:"你在哪个班？", alt:["What class are you in?"]},
+  {u:1, en:"I like playing the piano.", zh:"我喜欢弹钢琴。"},
+  {u:1, en:'Playing the piano is his favourite hobby, so he goes by the name of "Piano Prince".', zh:"弹钢琴是他最大的爱好，因此他被称为“钢琴王子”。"},
+  {u:1, en:"Simon is always full of energy.", zh:"Simon总是精力充沛。"},
+  {u:1, en:"Sandy likes music and plays the piano well.", zh:"Sandy喜欢音乐，而且钢琴弹得很好。"},
+  {u:1, en:"Daniel is smart and always ready to help others.", zh:"Daniel很聪明，并且总是乐于助人。"},
+  {u:1, en:"Sandy is a tall and slim girl with long hair.", zh:"Sandy是一个长着长头发的高高瘦瘦的女孩。"},
+  {u:1, en:"The twins study in the same grade but different classes.", zh:"这对双胞胎在同一个年级，不同的班级学习。"},
+  {u:1, en:"Here is my new classroom. Let me introduce my new classmates to you.", zh:"这儿是我的新教室。让我向你介绍我的新同学吧。", alt:["This is my new classroom. Let me introduce my new classmates to you."]},
+  {u:1, en:"Our lessons are not easy, but we enjoy them.", zh:"我们的课程不简单，但我们很喜欢。", alt:["Our lessons aren't easy, but we enjoy them."]},
+  {u:1, en:"English is a little hard for me.", zh:"英语对我而言有点难。", alt:["English is a bit hard for me."]},
+  {u:1, en:"Sandy likes listening to the piano music.", zh:"Sandy喜欢听钢琴曲。", alt:["Sandy likes listening to piano music."]},
+  {u:1, en:"Is Zhang Jing ready to introduce herself?", zh:"张晶准备好介绍她自己了吗？"},
+  {u:1, en:"The two boys are both interested in science.", zh:"这两个男孩都对科学感兴趣。"},
+  {u:1, en:"She has dance lessons every week.", zh:"她每周有舞蹈课。", alt:["She has dancing lessons every week."]},
+  {u:1, en:"The ten-year-old girl looks very pretty. She looks shy and quiet.", zh:"这个十岁的小女孩看起来很漂亮。她看上去害羞又安静。"},
+  {u:1, en:"My favourite subjects are Maths and IT.", zh:"我最喜欢的科目是数学和信息科学。", alt:["My favourite subjects are Maths and Information Science."]},
+  {u:1, en:"I'm happy to make friends with them.", zh:"我很开心能和他们交朋友。", alt:["I am happy to make friends with them."]},
+  {u:1, en:"Both of them are good at Maths. One of them often helps us with Maths problems.", zh:"他们俩都擅长数学。其中一个经常帮助我们做数学题。"},
   // Unit 2 Hobbies
   {u:2, en:"He gets to see all kinds of things and learns a lot.", zh:"他有机会见到各种各样的事物，学到许多知识。"},
   {u:2, en:"At home, he likes to take things apart and learn how they work.", zh:"在家时，他喜欢把东西拆开，研究它们的工作原理。"},
@@ -914,6 +1009,205 @@ const READINGS = [
 ];
 const READ_UNIT_TITLES = {1:'This is me!', 2:'Hobbies', 3:'Welcome to our school', 4:'My day', 5:'Food and lifestyle', 6:'Fashion', 7:'Shopping', 8:'Special days'};
 
+// ========== DICTATION (✍️ 默写卷) ==========
+// 数据源：`7A默写/2026 7A U1默写卷.docx`（按 Welcome / Reading I / Reading II / Grammar & Pronunciation /
+// Integration (A-C) / Integration (D) 分节，另含「词组卷」背诵/默写版）。
+// 每节：rev = 英译中复习（点击显示中文，不录入）；words/phrases/sentences = 看中文默写英文；
+// 句子的 given 字段是原卷的填空支架（首字母提示），en 为完整参考答案，alt 为可接受的其他写法。
+const DICTATION = [
+  {
+    u:1, sec:'welcome', label:'Welcome',
+    rev: [],
+    words: [
+      {zh:'和(某人)打招呼', en:'greet'},
+      {zh:'介绍', en:'introduce'},
+      {zh:'高兴的', en:'glad'},
+      {zh:'业余爱好', en:'hobby'},
+    ],
+    phrases: [
+      {zh:'叫做，被称为', en:'go by'},
+      {zh:'交新朋友', en:'make new friends'},
+      {zh:'互相', en:'each other'},
+      {zh:'在同一个班级', en:'in the same class'},
+      {zh:'我的英文/中文名', en:'my English/Chinese name', alt:['my English name','my Chinese name']},
+      {zh:'下午好', en:'good afternoon'},
+    ],
+    sentences: [
+      {zh:'你叫什么？', en:"What's your name?", alt:['What is your name?']},
+      {zh:'很高兴见到你！', en:'Nice to meet you!', alt:['Glad to meet you!']},
+      {zh:'你在哪个班？', en:'Which class are you in?', alt:['What class are you in?']},
+      {zh:'我喜欢弹钢琴。', en:'I like playing the piano.'},
+      {zh:'弹钢琴是他最大的爱好，因此他被称为"钢琴王子"。', en:'Playing the piano is his favourite hobby, so he goes by the name of "Piano Prince".',
+        given:'______ ______ ______ is his favourite _______, so he ______ ______ the name of "Piano Prince".'},
+    ],
+  },
+  {
+    u:1, sec:'reading1', label:'Reading I',
+    rev: [
+      {en:'greet each other', zh:'互相问候；彼此打招呼'},
+      {en:'introduce ourselves', zh:'介绍我们自己'},
+      {en:'in the same class', zh:'在同一个班级'},
+      {en:'have some hobbies', zh:'有一些业余爱好'},
+    ],
+    words: [
+      {zh:'同班同学', en:'classmate'},
+      {zh:'友好的', en:'friendly'},
+      {zh:'苗条的', en:'slim'},
+      {zh:'有礼貌的', en:'polite'},
+      {zh:'相貌，容貌', en:'looks'},
+      {zh:'性格', en:'character', alt:['personality']},
+      {zh:'聪明的，智能的', en:'smart', alt:['clever']},
+      {zh:'另外，其他', en:'other'},
+    ],
+    phrases: [
+      {zh:'在七年级1班', en:'in Class 1, Grade 7', alt:['in Class One, Grade Seven','in Class One Grade Seven','in Class 1 Grade 7']},
+      {zh:'擅长运动', en:'be good at sports', alt:['be good at sport']},
+      {zh:'留着长发', en:'have long hair'},
+      {zh:'戴眼镜', en:'wear glasses'},
+      {zh:'钢琴弹得好', en:'play the piano well'},
+      {zh:'对彼此友好', en:'be friendly to each other'},
+    ],
+    sentences: [
+      {zh:'Simon总是精力充沛。', en:'Simon is always full of energy.'},
+      {zh:'Sandy喜欢音乐，而且钢琴弹得很好。', en:'Sandy likes music and plays the piano well.', alt:['Sandy likes music, and she plays the piano well.']},
+      {zh:'Daniel很聪明，并且总是乐于助人。', en:'Daniel is smart and always ready to help others.', alt:['Daniel is clever and always ready to help others.']},
+      {zh:'他对科学感兴趣。', en:'He is interested in science.'},
+      {zh:'Sandy是一个长着长头发的高高瘦瘦的女孩。', en:'Sandy is a tall and slim girl with long hair.'},
+    ],
+  },
+  {
+    u:1, sec:'reading2', label:'Reading II',
+    rev: [],
+    words: [],
+    phrases: [
+      {zh:'阳光中学的一名新生', en:'a new student at Sunshine Middle School'},
+      {zh:'喜欢阅读', en:'enjoy reading', alt:['love reading','like reading']},
+      {zh:'满是…的', en:'be full of'},
+      {zh:'擅长做某事', en:'be good at doing sth'},
+      {zh:'踢足球', en:'play football', alt:['play soccer']},
+      {zh:'放学后', en:'after school'},
+      {zh:'愿意(准备好)做某事', en:'be ready to do sth'},
+      {zh:'对…感兴趣', en:'be interested in sth', alt:['be interested in']},
+    ],
+    sentences: [
+      {zh:'这对双胞胎在同一个年级，不同的班级学习。', en:'The twins study in the same grade but different classes.',
+        given:'The twins study in ______ ______ ______ but _________ _______.'},
+      {zh:'这儿是我的新教室。让我向你介绍我的新同学吧。', en:'Here is my new classroom. Let me introduce my new classmates to you.',
+        alt:['This is my new classroom. Let me introduce my new classmates to you.'],
+        given:'______ ______ my new classroom. Let me ______ ______ ______ ______ ______ ______.'},
+    ],
+  },
+  {
+    u:1, sec:'grammar', label:'Grammar & Pronunciation',
+    rev: [
+      {en:'be full of energy', zh:'充满能量；精力充沛'},
+      {en:'be ready to help others', zh:'乐于助人；随时准备帮助别人'},
+      {en:'be good at sport', zh:'擅长运动'},
+      {en:'be interested in science', zh:'对科学感兴趣'},
+    ],
+    words: [
+      {zh:'两个都', en:'both'},
+      {zh:'享受…的乐趣，欣赏，喜爱', en:'enjoy'},
+    ],
+    phrases: [
+      {zh:'我最喜欢的老师', en:'my favourite teacher'},
+      {zh:'在那边的女孩', en:'the girl over there'},
+      {zh:'骑车上学', en:'ride a bike to school', alt:['go to school by bike','ride to school']},
+      {zh:'坐公交回家', en:'take a bus home', alt:['go home by bus']},
+    ],
+    sentences: [
+      {zh:'我们的课程不简单，但我们很喜欢。', en:'Our lessons are not easy, but we enjoy them.', alt:["Our lessons aren't easy, but we enjoy them."]},
+      {zh:'英语对我而言有点难。', en:'English is a little hard for me.', alt:['English is a bit hard for me.']},
+      {zh:'Sandy喜欢听钢琴曲。', en:'Sandy likes listening to the piano music.', alt:['Sandy likes listening to piano music.']},
+      {zh:'张晶准备好介绍她自己了吗？', en:'Is Zhang Jing ready to introduce herself?',
+        given:'______ Zhang Jing ______ ______ ______ herself?'},
+      {zh:'这两个男孩都对科学感兴趣。', en:'The two boys are both interested in science.',
+        given:'The two boys ______ ______ ______ ______ science.'},
+    ],
+  },
+  {
+    u:1, sec:'integrationAC', label:'Integration (A-C)',
+    rev: [
+      {en:'She is a tall and slim girl with long hair.', zh:'她是一个留着长发的又高又苗条的女孩。'},
+      {en:'The girls over there are both interested in sport.', zh:'那边的女孩们都对运动感兴趣。'},
+    ],
+    words: [
+      {zh:'漂亮的，标致的', en:'pretty'},
+      {zh:'只有，仅', en:'only'},
+      {zh:'保持，继续是；暂住，逗留', en:'stay'},
+      {zh:'比赛（复数）', en:'matches', alt:['match']},
+    ],
+    phrases: [
+      {zh:'擅长游泳', en:'be good at swimming'},
+      {zh:'祝成功，祝好运', en:'good luck'},
+      {zh:'和二班有一场足球赛', en:'have a football match with Class 2'},
+      {zh:'今天下午', en:'this afternoon'},
+    ],
+    sentences: [
+      {zh:'她每周有舞蹈课。', en:'She has dance lessons every week.', alt:['She has dancing lessons every week.']},
+      {zh:'运动帮助我保持健康和愉悦。', en:'Sport helps me stay healthy and happy.'},
+      {zh:'这个十岁的小女孩看起来很漂亮。她看上去害羞又安静。', en:'The ten-year-old girl looks very pretty. She looks shy and quiet.',
+        given:'The ____________ girl ______ very ______. She ______ ______ and ______.'},
+    ],
+  },
+  {
+    u:1, sec:'integrationD', label:'Integration (D)',
+    rev: [
+      {en:'Sport helps me stay healthy and happy.', zh:'运动帮助我保持健康和愉悦。'},
+      {en:'We have a football match with Class 2 at 4:30 this afternoon.', zh:'今天下午4:30我们和二班有一场足球赛。'},
+    ],
+    words: [
+      {zh:'国际象棋', en:'chess'},
+      {zh:'难题；困难', en:'problem'},
+      {zh:'有趣的，使人快乐的', en:'fun'},
+      {zh:'年龄', en:'age'},
+    ],
+    phrases: [
+      {zh:'在周末', en:'at the weekend', alt:['at weekends','on the weekend']},
+      {zh:'打乒乓球', en:'play ping-pong', alt:['play table tennis','play ping pong']},
+    ],
+    sentences: [
+      {zh:'我最喜欢的科目是数学和信息科学。', en:'My favourite subjects are Maths and IT.', alt:['My favourite subjects are Maths and Information Science.']},
+      {zh:'我很开心能和他们交朋友。', en:"I'm happy to make friends with them.", alt:['I am happy to make friends with them.']},
+      {zh:'他们俩都擅长数学。其中一个经常帮助我们做数学题。', en:'Both of them are good at Maths. One of them often helps us with Maths problems.',
+        given:'______ of them ______ ______ ______ ______. ______ of them often ______ us ______ ______ ______.'},
+    ],
+  },
+  {
+    u:1, sec:'phrasesheet', label:'词组卷（背诵/默写）',
+    rev: [],
+    words: [],
+    phrases: [
+      {zh:'如何问候其他人', en:'how to greet others'},
+      {zh:'介绍彼此', en:'introduce each other'},
+      {zh:'在相同的班级', en:'in the same class'},
+      {zh:'喜欢阅读/游泳/听钢琴曲', en:'enjoy reading/swimming/listening to the piano music', alt:['enjoy reading','enjoy swimming','enjoy listening to the piano music']},
+      {zh:'欢迎来到七年级一班', en:'welcome to Class One, Grade Seven', alt:['welcome to Class 1, Grade 7']},
+      {zh:'充满能量', en:'be full of energy'},
+      {zh:'又高又苗条', en:'tall and slim'},
+      {zh:'擅长运动', en:'be good at sports', alt:['be good at sport']},
+      {zh:'放学后踢足球', en:'play football after school'},
+      {zh:'弹钢琴弹得很好', en:'play the piano well'},
+      {zh:'戴眼镜', en:'wear glasses'},
+      {zh:'乐于助人', en:'be ready to help others'},
+      {zh:'对科学感兴趣', en:'be interested in science'},
+      {zh:'在那边的女孩们', en:'the girls over there'},
+      {zh:'很喜欢这所学校', en:'like this school very much'},
+      {zh:'我来说简单/难', en:'be easy/hard for me', alt:['be easy for me','be hard for me']},
+      {zh:'我最喜欢的科目', en:'my favourite subject', alt:['my favourite subjects']},
+      {zh:'害羞又文静', en:'shy and quiet'},
+      {zh:'帮助某人做某事', en:'help sb do sth/with sth', alt:['help sb do sth','help sb with sth','help sb to do sth']},
+      {zh:'帮我的同学解决数学问题', en:'help my classmates with Maths problems'},
+      {zh:'喜欢下象棋和打乒乓球', en:'love playing chess and ping-pong', alt:['enjoy playing chess and ping-pong','like playing chess and ping-pong']},
+      {zh:'在周末', en:'at the weekend', alt:['at weekends','on the weekend']},
+      {zh:'想要与某人交朋友', en:'want to make friends with sb'},
+      {zh:'很高兴见到你。', en:'nice/glad to meet you', alt:['nice to meet you','glad to meet you']},
+      {zh:'运动帮助我保持健康和愉悦。', en:'Sport helps me stay healthy and happy'},
+    ],
+    sentences: [],
+  },
+];
+
 // ========== STATE ==========
 let state = {
   unit: 'all',
@@ -925,6 +1219,7 @@ let state = {
   answers: {}, // key: "tab-unit-index" -> {correct:bool}
   grammarAnswers: {},
   readings: {}, // 朗读训练: key "u:part" -> true (已完成)
+  dictAnswers: {}, // 默写卷: key "dict-u-sec-type-i" -> {correct, userInput} 或 {revealed:true}
   // flashcards (spaced repetition)
   flashcards: {},      // key "type:index" -> {box, next, seen}
   flashType: 'all',    // all | words | phrases | sentences | grammar
@@ -952,6 +1247,7 @@ function loadProgress() {
       state.answers = p.answers || {};
       state.grammarAnswers = p.grammarAnswers || {};
       state.readings = p.readings || {};
+      state.dictAnswers = p.dictAnswers || {};
       state.flashcards = p.flashcards || {};
       if (p.flashType) state.flashType = p.flashType;
       if (p.flashDir) state.flashDir = p.flashDir;
@@ -966,6 +1262,7 @@ function saveProgress() {
       answers: state.answers,
       grammarAnswers: state.grammarAnswers,
       readings: state.readings,
+      dictAnswers: state.dictAnswers,
       flashcards: state.flashcards,
       flashType: state.flashType,
       flashDir: state.flashDir,
@@ -988,7 +1285,7 @@ function selectTab(tab) {
   state.tab = tab;
   document.querySelectorAll('.tab-btn').forEach(el => {
     el.classList.toggle('active', el.textContent.includes(
-      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : tab === 'reading' ? '朗读' : '打印'
+      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : tab === 'reading' ? '朗读' : tab === 'dict' ? '默写' : '打印'
     ));
   });
   render();
@@ -1016,6 +1313,12 @@ function checkAnswer(input, expected) {
   const a2 = a.replace(/[^a-z0-9\s]/g, '');
   const b2 = b.replace(/[^a-z0-9\s]/g, '');
   return a2 === b2;
+}
+// 校验用户输入：主答案 + item.alt 里的备选写法（如缩写/同义句）任一命中即算对
+function checkAnyAnswer(input, item) {
+  if (checkAnswer(input, item.en)) return true;
+  if (item.alt && item.alt.some(a => checkAnswer(input, a))) return true;
+  return false;
 }
 
 // ========== TTS ==========
@@ -1065,6 +1368,7 @@ function render() {
   if (state.tab === 'grammar') return renderGrammar(el);
   if (state.tab === 'flashcards') return renderFlashcards(el);
   if (state.tab === 'reading') return renderReading(el);
+  if (state.tab === 'dict') return renderDictPaper(el);
   renderDictation(el);
 }
 
@@ -1162,7 +1466,7 @@ function submitAnswer(idx, key, inputId) {
   const userInput = input.value.trim();
   if (!userInput) return;
   const item = state.currentItems[idx];
-  const correct = checkAnswer(userInput, item.en);
+  const correct = checkAnyAnswer(userInput, item);
   state.answers[key] = { correct, userInput };
   saveProgress();
   render();
@@ -1737,7 +2041,200 @@ function playRecording(key) {
   _recAudio.play();
 }
 
-// ========== PRINT ==========
+// ========== DICTATION PAPER (✍️ 默写卷) ==========
+const DICT_GROUPS = [
+  {type:'rev',       title:'🔄 复习 · 英译中', hint:'点击眼睛显示中文'},
+  {type:'words',     title:'🔤 单词',          hint:'考试要求：单词 + 词性'},
+  {type:'phrases',   title:'🔗 词组',          hint:''},
+  {type:'sentences', title:'✏️ 句子',          hint:''},
+];
+
+function dictSections() {
+  return DICTATION.filter(s => state.unit === 'all' || s.u === state.unit);
+}
+function dictKey(s, type, i) { return `dict-${s.u}-${s.sec}-${type}-${i}`; }
+
+function renderDictPaper(el) {
+  const secs = dictSections();
+  let total = 0, answered = 0, correct = 0;
+  secs.forEach(s => DICT_GROUPS.forEach(g => {
+    (s[g.type] || []).forEach((item, i) => {
+      total++;
+      const a = state.dictAnswers[dictKey(s, g.type, i)];
+      if (a) { answered++; if (a.correct) correct++; }
+    });
+  }));
+  const pct = total > 0 ? Math.round(answered / total * 100) : 0;
+
+  let html = `
+    <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    <div class="stats">
+      <span>共 ${total} 题</span>
+      <span>已完成 ${answered}/${total}</span>
+      <span>正确率 ${answered > 0 ? Math.round(correct/answered*100) : 0}%</span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-warning" onclick="clearDictProgress()">重做本组</button>
+      <button class="btn btn-outline" onclick="doPrintDict()">🖨️ 打印默写卷</button>
+    </div>
+  `;
+
+  secs.forEach((s, si) => {
+    const sTotal = DICT_GROUPS.reduce((n, g) => n + (s[g.type] || []).length, 0);
+    const sDone = DICT_GROUPS.reduce((n, g) => n + (s[g.type] || []).filter((_, i) => state.dictAnswers[dictKey(s, g.type, i)]).length, 0);
+    html += `<div class="dict-sec">
+      <h3>Unit ${s.u} · ${s.label}</h3>
+      <div class="dict-sub">${sTotal} 题 · 已完成 ${sDone}/${sTotal}</div>`;
+    DICT_GROUPS.forEach(g => {
+      const items = s[g.type] || [];
+      if (!items.length) return;
+      html += `<div class="dict-group-title">${g.title}${g.hint ? ` <small>（${g.hint}）</small>` : ''}</div>`;
+      items.forEach((item, i) => { html = dictRowHtml(html, s, si, g.type, item, i); });
+    });
+    html += `</div>`;
+  });
+
+  if (!secs.length || total === 0) {
+    html += `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元暂无默写卷（目前收录 Unit 1）</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function dictRowHtml(html, s, si, type, item, i) {
+  const key = dictKey(s, type, i);
+  const a = state.dictAnswers[key];
+  const inputId = `di-${si}-${type}-${i}`;
+  html += `<div class="dict-row ${type === 'sentences' ? 'sent' : ''}">`;
+  html += `<span class="no">${i+1}.</span>`;
+
+  if (type === 'rev') {
+    // 英译中：看英文 → 点击显示中文
+    html += `<span class="prompt en-rev">${esc(item.en)}</span>`;
+    if (a && a.revealed) {
+      html += `<span class="dict-rev-zh">${esc(item.zh)}</span>
+        <button class="btn btn-outline sm" onclick="toggleDictRev(${si},${i})">🙈 隐住</button>`;
+    } else {
+      html += `<button class="btn btn-outline sm" onclick="toggleDictRev(${si},${i})">👁 显示中文</button>`;
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  // 看中文默写英文
+  html += `<span class="prompt">${esc(item.zh)}</span>`;
+  html += `<input type="text" id="${inputId}" placeholder="输入英文..."
+    ${a ? 'disabled' : ''}
+    class="${a ? (a.correct ? 'correct' : 'wrong') : ''}"
+    ${a ? `value="${esc(a.userInput || '')}"` : ''}
+    onkeydown="if(event.key==='Enter')submitDictAnswer(${si},'${type}',${i},'${inputId}')">`;
+  if (!a) {
+    html += `<button class="btn btn-primary sm" onclick="submitDictAnswer(${si},'${type}',${i},'${inputId}')">确认</button>`;
+  } else {
+    html += `<span class="ans ${a.correct ? 'answer-display correct' : 'answer-display wrong'}">${a.correct ? '✓ 正确' : '✗ ' + esc(item.en)}</span>`;
+  }
+  if (item.given) {
+    html += `<div class="dict-given">填空提示：${esc(item.given)}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function submitDictAnswer(si, type, i, inputId) {
+  const secs = dictSections();
+  const s = secs[si];
+  const input = document.getElementById(inputId);
+  if (!s || !input) return;
+  const userInput = input.value.trim();
+  if (!userInput) return;
+  const item = s[type][i];
+  const key = dictKey(s, type, i);
+  state.dictAnswers[key] = { correct: checkAnyAnswer(userInput, item), userInput };
+  saveProgress();
+  render();
+  // 聚焦下一题未作答的输入框
+  setTimeout(() => {
+    const all = [...document.querySelectorAll('.dict-sec input[type=text]')];
+    const from = all.findIndex(inp => inp.id === inputId);
+    for (let k = from + 1; k < all.length; k++) {
+      if (!all[k].disabled) { all[k].focus(); all[k].scrollIntoView({behavior:'smooth', block:'center'}); break; }
+    }
+  }, 100);
+}
+
+function toggleDictRev(si, i) {
+  const s = dictSections()[si];
+  if (!s) return;
+  const key = dictKey(s, 'rev', i);
+  if (state.dictAnswers[key]) delete state.dictAnswers[key];
+  else state.dictAnswers[key] = { revealed: true };
+  saveProgress();
+  render();
+}
+
+function clearDictProgress() {
+  dictSections().forEach(s => DICT_GROUPS.forEach(g => {
+    (s[g.type] || []).forEach((_, i) => delete state.dictAnswers[dictKey(s, g.type, i)]);
+  }));
+  saveProgress();
+  render();
+}
+
+function doPrintDict() {
+  const el = document.getElementById('content');
+  const secs = dictSections();
+  const unitLabel = state.unit === 'all' ? '全部单元' : `Unit ${state.unit}`;
+
+  let html = `<h1 style="text-align:center;font-size:20px;margin-bottom:4px;">7A英语默写卷</h1>`;
+  html += `<p style="text-align:center;font-size:13px;color:#666;margin-bottom:16px;">范围：${unitLabel} · 姓名：__________ · 日期：__________</p>`;
+
+  secs.forEach(s => {
+    html += `<h2>7A Unit ${s.u} · ${s.label}</h2>`;
+    const rev = s.rev || [];
+    if (rev.length) {
+      html += `<div class="print-sub">Revision（英译中）</div><div class="print-grid cols-2">`;
+      rev.forEach((r, i) => {
+        html += `<div class="print-cell"><span class="prompt">${i+1}. ${r.en}</span><div class="write-line"></div></div>`;
+      });
+      html += `</div>`;
+    }
+    const words = s.words || [];
+    if (words.length) {
+      html += `<div class="print-sub">Words:（词性）</div><div class="print-grid cols-3">`;
+      words.forEach((w, i) => {
+        html += `<div class="print-cell"><span class="prompt">${i+1}. ${w.zh}（　　　）</span></div>`;
+      });
+      html += `</div>`;
+    }
+    const phrases = s.phrases || [];
+    if (phrases.length) {
+      html += `<div class="print-sub">Phrases:</div><div class="print-grid cols-2">`;
+      phrases.forEach((p, i) => {
+        html += `<div class="print-cell"><span class="prompt">${i+1}. ${p.zh}</span><div class="write-line"></div></div>`;
+      });
+      html += `</div>`;
+    }
+    const sentences = s.sentences || [];
+    if (sentences.length) {
+      html += `<div class="print-sub">Sentences:</div>`;
+      sentences.forEach((t, i) => {
+        html += `<div class="print-item"><span class="prompt">${i+1}. ${t.zh}</span>`;
+        if (t.given) html += `<div class="prompt" style="margin-top:4px;">${t.given}</div>`;
+        html += `<div class="write-line"></div></div>`;
+      });
+    }
+  });
+
+  el.innerHTML = `
+    <div class="controls no-print">
+      <button class="btn btn-outline" onclick="render()">← 返回练习</button>
+      <span style="color:var(--text-light);font-size:13px;align-self:center;">已生成默写卷，下方点击浏览器打印或按 Ctrl/Cmd+P</span>
+    </div>
+    <div class="print-sheet" id="print-sheet" style="display:block;">${html}</div>
+  `;
+  setTimeout(() => window.print(), 200);
+}
+
+
 function renderPrint(el) {
   let html = `
     <div class="controls no-print">
@@ -1801,6 +2298,7 @@ function resetProgress() {
   if (!confirm('确定要重置所有进度吗？此操作不可撤销。')) return;
   state.answers = {};
   state.grammarAnswers = {};
+  state.dictAnswers = {};
   state.flashcards = {};
   state.flashDaily = { date: '', count: 0 };
   state.flashIgnoreLimit = false;
