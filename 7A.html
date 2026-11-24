@@ -51,8 +51,8 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   position:sticky; top:0; z-index:50;
 }
 .tab-btn {
-  padding:8px 16px; border:none; background:none; cursor:pointer; font-size:14px; color:var(--text-light);
-  border-bottom:2px solid transparent; transition: all .2s;
+  padding:8px 12px; border:none; background:none; cursor:pointer; font-size:13px; color:var(--text-light);
+  border-bottom:2px solid transparent; transition: all .2s; white-space:nowrap;
 }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
@@ -154,6 +154,20 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 @keyframes read-pulse { 50% { opacity:.25; } }
 
+/* Model essays (范文背诵) */
+.essay-card {
+  background:var(--card); border:1px solid var(--border); border-left:4px solid var(--primary);
+  border-radius:10px; padding:14px 18px; margin-bottom:12px;
+}
+.essay-card.done { border-left-color:var(--success); }
+.essay-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.essay-title { font-size:16px; font-weight:600; }
+.essay-level { font-size:12px; padding:2px 8px; border-radius:10px; background:#eaf2f8; color:var(--primary-dark); font-weight:600; }
+.essay-body p { font-size:15px; line-height:1.7; margin:0 0 8px; }
+.essay-body p:last-child { margin-bottom:0; }
+.essay-body[hidden] { display:none; }
+.essay-mask { color:var(--text-light); font-size:14px; padding:6px 0; }
+
 /* Grammar */
 .grammar-card { background:var(--card); border-radius:12px; padding:20px; margin-bottom:12px; border:1px solid var(--border); }
 .grammar-card .question { font-size:16px; margin-bottom:12px; line-height:1.6; }
@@ -198,6 +212,10 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 .dict-row .ans { font-size:13px; }
 .dict-row.sent { flex-direction:column; align-items:stretch; }
 .dict-row.sent .prompt { min-width:0; }
+.dict-answer-line { display:flex; gap:8px; align-items:center; flex:1.4; min-width:170px; flex-wrap:wrap; }
+.dict-row.sent .dict-answer-line { width:100%; flex:none; }
+.dict-answer-line input[type=text] { flex:1 1 220px; }
+.dict-row.sent .dict-answer-line .btn { white-space:nowrap; }
 .dict-given {
   width:100%; font-size:13px; color:var(--text-light); background:var(--bg);
   border-radius:6px; padding:6px 10px; margin-top:4px; line-height:1.6; font-family:inherit;
@@ -250,7 +268,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   <button class="nav-item" onclick="selectUnit(1)">Unit 1 This is me!</button>
   <button class="nav-item" onclick="selectUnit(2)">Unit 2 Hobbies</button>
   <button class="nav-item" onclick="selectUnit(3)">Unit 3 Welcome to our school</button>
-  <button class="nav-item" onclick="selectUnit(4)">Unit 4 My day</button>
+  <button class="nav-item" onclick="selectUnit(4)">Unit 4 School days</button>
   <button class="nav-item" onclick="selectUnit(5)">Unit 5 Food and lifestyle</button>
   <button class="nav-item" onclick="selectUnit(6)">Unit 6 Fashion</button>
   <button class="nav-item" onclick="selectUnit(7)">Unit 7 Shopping</button>
@@ -268,6 +286,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     <button class="tab-btn" onclick="selectTab('grammar')">语法练习</button>
     <button class="tab-btn" onclick="selectTab('flashcards')">🎴 闪卡</button>
     <button class="tab-btn" onclick="selectTab('reading')">🎤 朗读</button>
+    <button class="tab-btn" onclick="selectTab('essay')">📝 范文</button>
     <button class="tab-btn" onclick="selectTab('dict')">✍️ 默写卷</button>
     <button class="tab-btn" onclick="selectTab('print')">打印练习</button>
   </div>
@@ -482,6 +501,7 @@ words: [
   {u:5, en:"whole", zh:"整个的；全部"},
   {u:5, en:"miss", zh:"错过"},
   {u:5, en:"rest", zh:"休息"},
+  {u:5, en:"break", zh:"休息时间"},
   {u:5, en:"pie", zh:"馅饼"},
   {u:5, en:"yogurt", zh:"酸奶"},
   {u:5, en:"most", zh:"大多数；最多"},
@@ -641,6 +661,12 @@ words: [
   {u:8, en:"last", zh:"持续，延续"},
   {u:8, en:"till", zh:"到…时，直到…为止"},
   {u:8, en:"heart", zh:"内心；心脏"},
+  // 期中复习补充（U1-4 期中复习默写卷/背诵卷）
+  {u:1, en:"hobbies", zh:"业余爱好（复数）"},
+  {u:1, en:"matches", zh:"比赛（复数）"},
+  {u:2, en:"jogging", zh:"慢跑"},
+  {u:4, en:"activities", zh:"活动（复数）"},
+  {u:4, en:"videos", zh:"视频（复数）"},
 ],
 phrases: [
   // Unit 1
@@ -875,10 +901,46 @@ phrases: [
   {u:4, en:"take turns to do sth", zh:"轮流做某事"},
   // Unit 5
   {u:5, en:"have a sweet tooth", zh:"爱吃甜食"},
-  {u:5, en:"stay up", zh:"熬夜"},
-  {u:5, en:"be good for", zh:"对…有益"},
+  {u:5, en:"stay up", zh:"熬夜", alt:["stay up late","stay up very late"]},
+  {u:5, en:"be good for", zh:"对…有益", alt:["be good for our health"]},
   {u:5, en:"get hours of sleep", zh:"睡…小时"},
   {u:5, en:"say no to", zh:"拒绝…"},
+  // 以下为 Unit 5 默写卷中尚未收录的表达
+  {u:5, en:"a healthy lifestyle", zh:"一种健康的生活方式"},
+  {u:5, en:"all kinds of food", zh:"各种各样的食物", alt:["different kinds of food","various kinds of food"]},
+  {u:5, en:"beef and pork", zh:"牛肉和猪肉"},
+  {u:5, en:"have a healthy diet", zh:"有一个健康的饮食"},
+  {u:5, en:"get enough sleep", zh:"得到足够的睡眠"},
+  {u:5, en:"dance for half an hour every day", zh:"每天跳半个小时的舞蹈"},
+  {u:5, en:"live a healthy life", zh:"过着健康的生活", alt:["lead a healthy life"]},
+  {u:5, en:"a homebody", zh:"一个宅家的人"},
+  {u:5, en:"give us energy for the morning", zh:"给我们的早晨提供能量", alt:["give me energy for the morning"]},
+  {u:5, en:"my lifestyle is a little unhealthy", zh:"我的生活方式有一点不健康", alt:["my lifestyle is unhealthy"]},
+  {u:5, en:"eat more fruit and vegetables", zh:"多吃果蔬"},
+  {u:5, en:"four kilos of meat", zh:"四斤肉"},
+  {u:5, en:"two pieces of cheese", zh:"两块奶酪"},
+  {u:5, en:"a bowl of soup", zh:"一碗汤"},
+  {u:5, en:"a packet of salt", zh:"一袋盐"},
+  {u:5, en:"after morning exercises", zh:"早操过后"},
+  {u:5, en:"cook delicious porridge", zh:"煮美味的粥"},
+  {u:5, en:"exercise less than three times a week", zh:"锻炼少于一周三次"},
+  {u:5, en:"eat yoghurt between meals", zh:"两餐之间吃酸奶"},
+  {u:5, en:"cook noodles in different ways", zh:"用不同方式煮面"},
+  {u:5, en:"some students' lifestyles", zh:"一些学生的生活方式"},
+  {u:5, en:"change his unhealthy lifestyle", zh:"改变他不健康的生活方式", alt:["change his unhealthy lifestyles"]},
+  {u:5, en:"what we eat and how we live", zh:"我们吃的东西以及我们生活的方式"},
+  {u:5, en:"go to school without breakfast", zh:"不吃早饭就上学"},
+  {u:5, en:"plan to go swimming every week", zh:"计划每星期去游泳"},
+  {u:5, en:"three pieces of cheese", zh:"三片奶酪"},
+  {u:5, en:"five cartons of milk", zh:"五盒牛奶"},
+  {u:5, en:"be good for ... / be bad for ...", zh:"有助于…/有害于…"},
+  {u:5, en:"more than 9 hours", zh:"超过9小时"},
+  {u:5, en:"the whole morning", zh:"一整个早晨"},
+  {u:5, en:"almost every day", zh:"几乎每天"},
+  {u:5, en:"enough sleep and rest", zh:"足够的睡眠和休息"},
+  {u:5, en:"make some changes to your diet", zh:"对你的饮食做出一些改变"},
+  {u:5, en:"different cooking styles", zh:"不同的烹饪风格"},
+  {u:5, en:"make sure", zh:"确保"},
   // Unit 6
   {u:6, en:"depend on", zh:"取决于；依靠"},
   {u:6, en:"such as", zh:"例如，诸如…之类"},
@@ -907,6 +969,19 @@ phrases: [
   {u:8, en:"Spring Festival couplets", zh:"春联"},
   {u:8, en:"a symbol of", zh:"…的象征"},
   {u:8, en:"get over", zh:"解决，克服"},
+  // 期中复习补充（U1-4 期中复习默写卷/背诵卷）
+  {u:1, en:"introduce my favourite classmate to you at the meeting", zh:"在会议上向你介绍我最喜欢的同班同学"},
+  {u:1, en:"be ready to help me with all kinds of problems", zh:"乐意帮助我解决各种各样的问题"},
+  {u:1, en:"share works with others", zh:"与其他人分享艺术作品"},
+  {u:1, en:"make me look pretty", zh:"使我看起来漂亮"},
+  {u:1, en:"in the same grade", zh:"在同一个年级"},
+  {u:3, en:"borrow from", zh:"从……借"},
+  {u:4, en:"do more exercise", zh:"做更多的锻炼"},
+  {u:4, en:"study many amazing living things", zh:"研究许多令人惊叹的生物"},
+  {u:4, en:"go on a trip to", zh:"到……旅行", alt:["take a trip to","have a trip to"]},
+  {u:4, en:"have much time to play tennis", zh:"有很多时间打网球"},
+  {u:4, en:"take turns to do something", zh:"轮流做某事", alt:["take turns to do sth"]},
+  {u:4, en:"do different chores", zh:"做不同的值日任务"},
 ],
 sentences: [
   // Unit 1 This is me!
@@ -985,7 +1060,7 @@ sentences: [
   {u:3, en:"What else do you like about our school?", zh:"你还喜欢我们学校的哪些方面？"},
   {u:3, en:"Thanks for your email.", zh:"谢谢你的邮件。"},
   {u:3, en:"The best part is the modern library.", zh:"最好的部分是现代的图书馆。"},
-  {u:3, en:"We get to learn more about our school.", zh:"我们有机会更好了解我们学校。", alt:["We have a chance to learn more about our school."]},
+  {u:3, en:"We get to learn more about our school.", zh:"我们有机会更好了解我们学校。", alt:["We have a chance to learn more about our school.","We get to know our school better."]},
   {u:3, en:"My school is not big but great.", zh:"我的学校不大但是很棒。", alt:["My school isn't big but it's great.","My school is not big but it is great."]},
   {u:3, en:"How many classrooms are there in your school?", zh:"你们学校有多少个教室？", alt:["How many classrooms does your school have?"]},
   {u:3, en:"Lots of exciting sports matches take place on the sports field.", zh:"许多有趣的体育竞赛在体育场发生。", alt:["Lots of exciting sports matches take place.","Lots of exciting sports matches take place on it."]},
@@ -1038,10 +1113,33 @@ sentences: [
   // Unit 5 Food and lifestyle
   {u:5, en:"A life without health is like a river without water.", zh:"不健康的生活犹如干涸的河流。"},
   {u:5, en:"They're good for us.", zh:"它们对我们有益。"},
-  {u:5, en:"I get nine hours of sleep every night, so I am always full of energy.", zh:"我每天晚上睡九个小时，所以我总是精力充沛。"},
+  {u:5, en:"I get nine hours of sleep every night, so I am always full of energy.", zh:"我每天晚上睡九个小时，所以我总是精力充沛。", alt:["I sleep for nine hours every night, so I am always full of energy.","I sleep for nine hours every night, so I'm always full of energy."]},
   {u:5, en:"For lunch, I like fish, meat and tofu.", zh:"我午餐喜欢吃鱼、肉和豆腐。"},
-  {u:5, en:"I have a sweet tooth and it is hard for me to say no to cakes.", zh:"我爱吃甜食，对我来说要拒绝蛋糕是很难的。"},
+  {u:5, en:"I have a sweet tooth and it is hard for me to say no to cakes.", zh:"我爱吃甜食，对我来说要拒绝蛋糕是很难的。", alt:["I have a sweet tooth, so it is hard for me to say no to cakes.","I have a sweet tooth, so it's hard for me to say no to cakes."]},
   {u:5, en:"I need to get enough sleep.", zh:"我需要充足的睡眠。"},
+  // 以下为 Unit 5 默写卷中尚未收录的句子
+  {u:5, en:"It's healthy for us to have milk and eggs often.", zh:"对我们来说，经常喝牛奶吃鸡蛋是健康的。", alt:["It is healthy for us to have milk and eggs often.","It's healthy for us to drink milk and eat eggs often.","It is healthy for us to drink milk and eat eggs often."]},
+  {u:5, en:"Fish is good for our health.", zh:"鱼肉有助于健康。", alt:["Fish is good for health."]},
+  {u:5, en:"Carrots are great for our eyes.", zh:"胡萝卜对我们的眼睛极好。", alt:["Carrots are very good for our eyes.","Carrots are good for our eyes."]},
+  {u:5, en:"I never go to school without breakfast.", zh:"我从来没有不吃早饭就去上学。"},
+  {u:5, en:"I seldom eat cakes or sweets. Too much sugar is bad for our teeth.", zh:"我很少吃蛋糕和糖。太多的糖对牙齿不好。", alt:["I seldom eat cakes and sweets. Too much sugar is bad for our teeth.","I seldom eat cakes or sweets. Too much sugar is bad for my teeth."]},
+  {u:5, en:"I plan to eat more fruit and vegetables and less sugar.", zh:"我计划多吃蔬菜少吃糖。", alt:["I plan to eat more vegetables and fewer sweets.","I plan to eat more vegetables and less sugar."]},
+  {u:5, en:"Breakfast is important because it gives us energy for the whole morning.", zh:"早餐是重要的，因为它给我们提供一上午的能量。", alt:["Breakfast is important, because it gives us energy for the whole morning.","Breakfast is important because it gives us energy for the morning."]},
+  {u:5, en:"Simon, what food do we need to buy for the class party?", zh:"西蒙，我们需要给班级派对买什么食物？"},
+  {u:5, en:"For people with a sweet tooth, we can also buy some sweets and chocolate.", zh:"对于爱吃甜品的人来说，我们也可以买些糖果和巧克力。", alt:["For people who have a sweet tooth, we can also buy some sweets and chocolate."]},
+  {u:5, en:"We need forty bottles of water and ten cartons of milk.", zh:"我们需要40瓶水和10盒牛奶。"},
+  {u:5, en:"There are three toy trains near the tree.", zh:"在树边有三只玩具火车。"},
+  {u:5, en:"The fruit on the farm is very fresh.", zh:"农场里的水果十分新鲜。"},
+  {u:5, en:"You need to eat in a healthy way, exercise more or get more sleep.", zh:"你需要以一种健康的方式去饮食，锻炼更多或睡眠更多。", alt:["You need to eat in a healthy way, exercise more and get more sleep.","You need to eat in a healthy way, exercise more or sleep more."]},
+  {u:5, en:"Breakfast is an important meal. It gives us energy for the whole morning.", zh:"早饭是重要的一餐。它给我们整个早上提供能量。"},
+  {u:5, en:"—What do you have for breakfast? —I seldom have fruit for breakfast, but I have a big meal.", zh:"—你早饭吃什么？—我早饭很少吃水果，但我会吃一顿大餐。"},
+  {u:5, en:"How much time do you spend on the computer every day?", zh:"你在每天电脑上花多少时间？"},
+  {u:5, en:"We should never skip breakfast.", zh:"我们应当从来不会不吃早饭。", alt:["We should never go without breakfast.","We should never go to school without breakfast."]},
+  {u:5, en:"For me, a healthy lifestyle is all about a healthy diet, enough exercise and rest.", zh:"对我来说，健康的生活方式全在于一个健康的饮食习惯，足够的运动和休息。"},
+  {u:5, en:"A good night's sleep gives me lots of energy for the next day.", zh:"当我晚上睡得好，我第二天有许多能量。", alt:["When I sleep well at night, I have lots of energy the next day.","When I sleep well at night, I have a lot of energy the next day."]},
+  {u:5, en:"I can stay fit with a healthy lifestyle.", zh:"拥有一个健康的生活方式，我能保持健康。", alt:["With a healthy lifestyle, I can keep fit.","With a healthy lifestyle, I can stay fit."]},
+  {u:5, en:"One hundred children have one hundred dreams.", zh:"一百个孩子有一百个梦想。"},
+  {u:5, en:"It's important for me to keep fit.", zh:"对我来说保持健康很重要。", alt:["It is important for me to keep fit."]},
   // Unit 6 Fashion
   {u:6, en:"Dressing is a way of life.", zh:"着装是一种生活方式。"},
   {u:6, en:"Well, it depends on the colour of our skin.", zh:"嗯，这取决于我们的肤色。"},
@@ -1065,6 +1163,12 @@ sentences: [
   {u:8, en:"But wherever you are, Happy New Year!", zh:"但是无论你在哪儿，祝你新年快乐！"},
   {u:8, en:"They're playing a famous piece from the Strauss family.", zh:"他们正在演奏施特劳斯家族的一支名曲。"},
   {u:8, en:"The Double Ninth Festival is in autumn.", zh:"重阳节是在秋天。"},
+  // 期中复习补充（U1-4 期中复习默写卷/背诵卷）
+  {u:1, en:"She goes by Millie.", zh:"她被称为Millie。"},
+  {u:1, en:"Both of them are interested in science.", zh:"他们俩都对科学感兴趣。", alt:["They are both interested in science."]},
+  {u:2, en:"He will find answers to endless questions.", zh:"他会找到无穷无尽问题的答案。"},
+  {u:3, en:"It is a perfect place for me to read newspapers.", zh:"它对我来说是一个读报纸的完美地方。"},
+  {u:4, en:"This helps me learn how to take care of plants.", zh:"这帮助我学会如何照料植物。"},
 ],
 grammar: [
   // Unit 1 一般现在时（I）be 动词
@@ -1228,10 +1332,10 @@ const READINGS = [
   {u:8, part:'pronunciation',  title:'Pronunciation 语音',     file:'7A 英语教材听力 Unit 8 Pronunciation.MP3'},
   {u:8, part:'pronunciationC', title:'Pronunciation C',        file:'7A 英语教材听力 Unit 8 Pronunciation C.MP3'},
 ];
-const READ_UNIT_TITLES = {1:'This is me!', 2:'Hobbies', 3:'Welcome to our school', 4:'My day', 5:'Food and lifestyle', 6:'Fashion', 7:'Shopping', 8:'Special days'};
+const READ_UNIT_TITLES = {1:'This is me!', 2:'Hobbies', 3:'Welcome to our school', 4:'School days', 5:'Food and lifestyle', 6:'Fashion', 7:'Shopping', 8:'Special days'};
 
 // ========== DICTATION (✍️ 默写卷) ==========
-// 数据源：`7A默写/` 下 Unit 1-4 默写卷 docx（按 Welcome / Reading I / Reading II / Grammar & Pronunciation /
+// 数据源：`7A默写/` 下 Unit 1-5 默写卷 docx（按 Welcome / Reading I / Reading II / Grammar & Pronunciation /
 // Integration (A-C) / Integration (D) 分节，另含「词组卷 / 重点表达」背诵/默写版）。
 // 每节：rev = 英译中复习（点击显示中文，不录入）；words/phrases/sentences = 看中文默写英文；
 // 句子的 given 字段是原卷的填空支架（首字母提示），en 为完整参考答案，alt 为可接受的其他写法。
@@ -1427,6 +1531,60 @@ const DICTATION = [
     ],
     sentences: [],
   },
+  {
+    // 数据源：U1-4 期中复习默写卷.docx（U1）
+    u:1, sec:'midterm', label:'期中复习',
+    rev: [],
+    words: [
+      {zh:'业余爱好（复数）', en:'hobbies', alt:['hobby']},
+      {zh:'相貌（复数）', en:'looks'},
+      {zh:'性格', en:'character'},
+      {zh:'比赛（复数）', en:'matches', alt:['match']},
+      {zh:'保持，逗留', en:'stay'},
+      {zh:'礼貌的（形容词，正 & 反）', en:'polite / impolite', alt:['polite','impolite','polite/impolite']},
+      {zh:'有趣的', en:'fun'},
+      {zh:'每个（表示两个或以上）', en:'each'},
+      {zh:'数学题、难题', en:'problem'},
+      {zh:'两个都', en:'both'},
+      {zh:'国际象棋', en:'chess'},
+      {zh:'聪明的，智能的', en:'smart'},
+      {zh:'另外，其它', en:'other'},
+      {zh:'苗条的', en:'slim'},
+      {zh:'高兴的', en:'glad'},
+    ],
+    phrases: [
+      {zh:'在会议上向你介绍我最喜欢的同班同学', en:'introduce my favourite classmate to you at the meeting'},
+      {zh:'对彼此友好', en:'be friendly to each other'},
+      {zh:'充满精力', en:'be full of energy'},
+      {zh:'乐意帮助我解决各种各样的问题', en:'be ready to help me with all kinds of problems'},
+      {zh:'与其他人分享艺术作品', en:'share works with others', alt:['share works of art with others']},
+      {zh:'使我看起来漂亮', en:'make me look pretty'},
+      {zh:'在同一个年级', en:'in the same grade'},
+      {zh:'在他的空闲时间', en:'in his free time', alt:['in his spare time']},
+    ],
+    sentences: [
+      {zh:'她被称为Millie。', en:'She goes by Millie.'},
+      {zh:'他们俩都对科学感兴趣。', en:'Both of them are interested in science.', alt:['They are both interested in science.']},
+    ],
+    fill: [
+      {zh:'What great fun we had ____ (play) chess last night!', en:'playing'},
+      {zh:'The Smiths family ____ (do) sports in the park every Saturday.', en:'does', alt:['do']},
+      {zh:'The girl enjoys ____ (chat) with her classmates in the class.', en:'chatting'},
+      {zh:'Millie, with her friends, ____ (be) going on a picnic during the National Day holiday.', en:'is'},
+      {zh:'Sam is a popular supermarket for members (会员) ____ (仅).', en:'only'},
+      {zh:'Tom is a football fan. He often watches football ____ (读音 /ˈmætʃɪz/) on TV.', en:'matches'},
+      {zh:'Even though she refused (拒绝) the offer, she said "thank you" p____.', en:'politely'},
+      {zh:'Global warming is one of the biggest ____ (难题) humans are facing.', en:'problems'},
+    ],
+    complete: [
+      {zh:'放学踢足球总是让我活力满满。', en:'Playing football after school always makes me full of energy.',
+        alt:['Playing football after school always makes me energetic.'],
+        given:'________ always makes me ________.'},
+      {zh:'我想和丹尼尔交朋友因为他乐于帮助他人。', en:'I want to make friends with Daniel because he is ready to help others.',
+        alt:['I want to make friends with Daniel because he is ready to help other people.'],
+        given:'I want to ________ Daniel because he ________.'},
+    ],
+  },
 
   // ===== Unit 2 (数据源：7A默写/2025 7A U2默写卷.docx) =====
   {
@@ -1609,6 +1767,52 @@ const DICTATION = [
       {zh:'你的榜样', en:'your role model'},
     ],
     sentences: [],
+  },
+  {
+    // 数据源：U1-4 期中复习默写卷.docx（U2）
+    u:2, sec:'midterm', label:'期中复习',
+    rev: [],
+    words: [
+      {zh:'慢跑', en:'jogging'},
+      {zh:'博物馆', en:'museum'},
+      {zh:'成员', en:'member'},
+      {zh:'剪纸', en:'paper-cutting'},
+      {zh:'个人生活；生命', en:'life'},
+      {zh:'技能，技艺', en:'skill'},
+      {zh:'绘画', en:'painting'},
+      {zh:'围绕，环绕', en:'around'},
+      {zh:'地理（学）', en:'geography'},
+      {zh:'健康的', en:'fit'},
+      {zh:'科学家', en:'scientist'},
+      {zh:'排球', en:'volleyball'},
+    ],
+    phrases: [
+      {zh:'在他空闲的时候', en:'in his free time', alt:['in his spare time']},
+      {zh:'一位中国画大师', en:'a master of Chinese painting'},
+      {zh:'用这种方式', en:'in this way'},
+      {zh:'艺术作品', en:'works of art'},
+      {zh:'分享他们的想法', en:'share their ideas'},
+      {zh:'成为一名设计师', en:'become a designer'},
+      {zh:'让我感到开心', en:'make me feel happy'},
+      {zh:'在未来', en:'in the future'},
+    ],
+    sentences: [
+      {zh:'我确信他的梦想能成真。', en:"I'm sure his dream can come true.", alt:['I am sure his dream can come true.']},
+      {zh:'他会找到无穷无尽问题的答案。', en:'He will find answers to endless questions.'},
+    ],
+    fill: [
+      {zh:'I want to ____ (设计) a lovely poster for our school volleyball club.', en:'design'},
+      {zh:'____ (地理) helps us know more about mountains, rivers and countries.', en:'Geography'},
+      {zh:'My little brother likes collecting ____ (模型) cars in his free time.', en:'model'},
+      {zh:'All teachers ask students to be ____ (礼貌的) to classmates and elders.', en:'polite'},
+      {zh:'Thousands of visitors come to this town to watch ____ (剪纸) shows every year.', en:'paper-cutting'},
+      {zh:'The sports meeting will take place at this big ____ (会议) hall next Friday.', en:'meeting'},
+      {zh:'Don’t worry, your dream of being a pilot will ____ (实现) one day.', en:'come true'},
+      {zh:'My dad goes to the city library ____ (一次) every two weeks.', en:'once'},
+      {zh:'My cousin’s big dream is to be a famous artist in the ____ (未来).', en:'future'},
+      {zh:'I usually ____ (慢跑) around the park for half an hour after dinner.', en:'jog'},
+    ],
+    complete: [],
   },
   {
   // ===== Unit 3 (数据源：7A默写/7A U3默写卷(1).docx) =====
@@ -1799,6 +2003,51 @@ u:3, sec:'welcome', label:'Welcome',
     sentences: [],
   },
 
+  {
+    // 数据源：U1-4 期中复习默写卷.docx（U3）
+    u:3, sec:'midterm', label:'期中复习',
+    rev: [],
+    words: [
+      {zh:'现代化的', en:'modern'},
+      {zh:'明亮的', en:'bright'},
+      {zh:'公开活动', en:'event'},
+      {zh:'相信', en:'trust'},
+      {zh:'真正地', en:'really'},
+      {zh:'杂志', en:'magazine'},
+      {zh:'相当，非常', en:'quite'},
+      {zh:'特殊的', en:'special'},
+      {zh:'千', en:'thousand'},
+      {zh:'其他的', en:'else'},
+      {zh:'很快，马上', en:'soon'},
+      {zh:'在一起，共同', en:'together'},
+    ],
+    phrases: [
+      {zh:'举行，发生', en:'take place'},
+      {zh:'也', en:'as well'},
+      {zh:'从……借', en:'borrow from'},
+      {zh:'关心', en:'care about'},
+      {zh:'教我们英语', en:'teach us English'},
+      {zh:'和老师闲聊我们的问题', en:'chat with teachers about our problems'},
+    ],
+    sentences: [
+      {zh:'我们有机会更好了解我们学校。', en:'We get to know our school better.'},
+      {zh:'它对我来说是一个读报纸的完美地方。', en:'It is a perfect place for me to read newspapers.'},
+    ],
+    fill: [
+      {zh:'People always like to ____ (度过，花时间) time with their best friends.', en:'spend'},
+      {zh:'We can borrow many books and ____ (杂志) in the school library.', en:'magazines'},
+      {zh:'Suzhou, a ____ (现代的) and beautiful city, is in the east of China.', en:'modern'},
+      {zh:'The school sports meeting is one of the biggest ____ (公开活动) in our school.', en:'events'},
+      {zh:'Every spring, ____ (千) of visitors go to Yuantouzhu in Wuxi to enjoy the beautiful cherry blossoms.', en:'thousands'},
+      {zh:'____ (闲聊) with friends after class makes us happy.', en:'Chatting'},
+      {zh:'Spring is a p____ time to fly kites.', en:'perfect'},
+      {zh:'There are lots of e____ sports matches in Xuzhou Olympic Sports Center.', en:'exciting'},
+      {zh:'December 13th is a s____ day for Nanjing. We can’t forget it.', en:'special'},
+      {zh:'What e____ do we need to buy for the class party?', en:'else'},
+    ],
+    complete: [],
+  },
+
   // ===== Unit 4 (数据源：7A默写/7A U4默写卷.docx) =====
   {
     u:4, sec:'welcome', label:'Welcome',
@@ -1982,6 +2231,308 @@ u:3, sec:'welcome', label:'Welcome',
     ],
     sentences: [],
   },
+
+  {
+    // 数据源：U1-4 期中复习默写卷.docx（U4）
+    u:4, sec:'midterm', label:'期中复习',
+    rev: [],
+    words: [
+      {zh:'活动（复数）', en:'activities', alt:['activity']},
+      {zh:'团队合作', en:'teamwork'},
+      {zh:'当然', en:'of course'},
+      {zh:'第一；首先', en:'first'},
+      {zh:'区域；面积；领域', en:'area'},
+      {zh:'很少', en:'seldom'},
+      {zh:'视频（复数）', en:'videos', alt:['video']},
+      {zh:'训练，练习', en:'practise', alt:['practice']},
+      {zh:'网站', en:'website'},
+      {zh:'生物学', en:'biology'},
+      {zh:'实地考察', en:'field trip'},
+      {zh:'在（向）外面', en:'outside'},
+      {zh:'参加', en:'take part in'},
+      {zh:'动身去，到……地方去', en:'leave for'},
+      {zh:'累人的', en:'tiring'},
+    ],
+    phrases: [
+      {zh:'做更多的锻炼', en:'do more exercise'},
+      {zh:'去短途慢跑', en:'go for a short jog'},
+      {zh:'读许多著名作家的作品', en:'read the works of many famous writers', alt:['the works of many famous writers']},
+      {zh:'研究许多令人惊叹的生物', en:'study many amazing living things'},
+      {zh:'到……旅行', en:'go on a trip to', alt:['take a trip to','have a trip to']},
+      {zh:'有很多时间打网球', en:'have much time to play tennis'},
+      {zh:'亲近大自然', en:'get close to nature'},
+      {zh:'玩得痛快，得到乐趣', en:'enjoy oneself', alt:['have a good time','have fun']},
+      {zh:'轮流做某事', en:'take turns to do something', alt:['take turns to do sth']},
+      {zh:'小组合作', en:'work in groups'},
+      {zh:'清空垃圾桶', en:'empty the bins'},
+      {zh:'做不同的值日任务', en:'do different chores'},
+    ],
+    sentences: [
+      {zh:'每个人都竭尽全力让事情变得更好。', en:'Everybody tries their best to make things better.'},
+      {zh:'这帮助我学会如何照料植物。', en:'This helps me learn how to take care of plants.'},
+    ],
+    fill: [
+      {zh:'That famous ____ (write) can speak three different ____ (language).', en:'writer, languages', alt:['writer languages','writer,languages']},
+      {zh:'It is ____ (amaze) to see so many living plants in the nature park.', en:'amazing'},
+      {zh:'Watching long videos is really ____ (tire) for students.', en:'tiring'},
+      {zh:'Every time I meet difficulties, I always say to ____ (我自己), "Yes, I can!"', en:'myself'},
+      {zh:'Many students take part in sports ____ (tour) through the forest.', en:'tours'},
+      {zh:'We enjoy ____ (roller skate) in the open area after school.', en:'roller skating'},
+      {zh:'Teamwork makes our group work much ____ (good).', en:'better'},
+      {zh:'My uncle is a master in the ____ (领域) of music.', en:'field'},
+    ],
+    complete: [
+      {zh:'我的弟弟通常在早晨练习说英语。', en:'My brother practises speaking English in the morning.',
+        alt:['My brother practices speaking English in the morning.'],
+        given:'My brother ________ ________ ________ English ________ the morning.'},
+      {zh:'我们中的每个人都在这个小组活动中有不同的职责。', en:'Each of us has different duties in the group activity.',
+        given:'________ ________ us has different ________ in the ________ ________.'},
+      {zh:'——你多久从图书馆借一次书？——大概一周一次。', en:'How often do you borrow books from the library? About once a week.',
+        given:'—________ ________ do you borrow books from the library? —About ________ a week.'},
+    ],
+  },
+
+  // ===== Unit 5 (数据源：7A默写/2025 7A U5默写卷.docx) =====
+  {
+    u:5, sec:'welcome', label:'Welcome',
+    rev: [],
+    words: [
+      {zh:'生活方式', en:'lifestyle'},
+      {zh:'西瓜', en:'watermelon'},
+      {zh:'黄瓜', en:'cucumber'},
+      {zh:'甜椒；胡椒粉', en:'pepper'},
+      {zh:'糖果', en:'sweet'},
+      {zh:'美味的', en:'delicious'},
+    ],
+    phrases: [
+      {zh:'一种健康的生活方式', en:'a healthy lifestyle'},
+      {zh:'各种各样的食物', en:'all kinds of food', alt:['different kinds of food','various kinds of food']},
+      {zh:'牛肉和猪肉', en:'beef and pork'},
+    ],
+    sentences: [
+      {zh:'不健康的生活犹如干涸的河流。', en:'A life without health is like a river without water.'},
+      {zh:'对我们来说，经常喝牛奶吃鸡蛋是健康的。', en:"It's healthy for us to have milk and eggs often.", alt:['It is healthy for us to have milk and eggs often.',"It's healthy for us to drink milk and eat eggs often.",'It is healthy for us to drink milk and eat eggs often.']},
+      {zh:'鱼肉有助于健康。', en:'Fish is good for our health.', alt:['Fish is good for health.']},
+      {zh:'胡萝卜对我们的眼睛极好。', en:'Carrots are great for our eyes.', alt:['Carrots are very good for our eyes.','Carrots are good for our eyes.']},
+    ],
+  },
+  {
+    u:5, sec:'reading1', label:'Reading I',
+    rev: [
+      {en:'have a pancake and some milk', zh:'吃一个煎饼和一些牛奶'},
+      {en:'stay up too late', zh:'熬夜太晚'},
+    ],
+    words: [
+      {zh:'重要的', en:'important'},
+      {zh:'羊肉', en:'mutton'},
+      {zh:'烙饼；薄饼', en:'pancake'},
+      {zh:'不健康的', en:'unhealthy'},
+      {zh:'足够的', en:'enough'},
+      {zh:'喜欢待在家里的人', en:'homebody'},
+    ],
+    phrases: [
+      {zh:'熬夜很晚', en:'stay up very late'},
+      {zh:'有一个健康的饮食', en:'have a healthy diet'},
+      {zh:'得到足够的睡眠', en:'get enough sleep'},
+      {zh:'每天跳半个小时的舞蹈', en:'dance for half an hour every day'},
+    ],
+    sentences: [
+      {zh:'我每天晚上睡九个小时，所以我总是精力充沛。', en:'I get nine hours of sleep every night, so I am always full of energy.', alt:["I sleep for nine hours every night, so I'm always full of energy.",'I sleep for nine hours every night, so I am always full of energy.']},
+      {zh:'我从来没有不吃早饭就去上学。', en:'I never go to school without breakfast.'},
+      {zh:'我很少吃蛋糕和糖。太多的糖对牙齿不好。', en:'I seldom eat cakes or sweets. Too much sugar is bad for our teeth.', alt:['I seldom eat cakes and sweets. Too much sugar is bad for our teeth.','I seldom eat cakes or sweets. Too much sugar is bad for my teeth.']},
+      {zh:'我爱吃甜食，对我来说要拒绝蛋糕是很难的。', en:'I have a sweet tooth and it is hard for me to say no to cakes.', alt:['I have a sweet tooth, so it is hard for me to say no to cakes.',"I have a sweet tooth, so it's hard for me to say no to cakes."]},
+      {zh:'我计划多吃蔬菜少吃糖。', en:'I plan to eat more fruit and vegetables and less sugar.', alt:['I plan to eat more vegetables and fewer sweets.','I plan to eat more vegetables and less sugar.']},
+    ],
+  },
+  {
+    u:5, sec:'reading2', label:'Reading II',
+    rev: [],
+    words: [],
+    phrases: [
+      {zh:'过着健康的生活', en:'live a healthy life', alt:['lead a healthy life']},
+      {zh:'爱吃甜食', en:'have a sweet tooth'},
+      {zh:'一个宅家的人', en:'a homebody'},
+      {zh:'给我们的早晨提供能量', en:'give us energy for the morning', alt:['give me energy for the morning']},
+      {zh:'我的生活方式有一点不健康', en:'my lifestyle is a little unhealthy', alt:['my lifestyle is unhealthy']},
+      {zh:'多吃果蔬', en:'eat more fruit and vegetables'},
+    ],
+    sentences: [
+      {zh:'早餐是重要的，因为它给我们提供一上午的能量。', en:'Breakfast is important because it gives us energy for the whole morning.', alt:['Breakfast is important, because it gives us energy for the whole morning.','Breakfast is important because it gives us energy for the morning.']},
+    ],
+  },
+  {
+    u:5, sec:'grammar', label:'Grammar & Pronunciation',
+    rev: [
+      {en:'a glass of water', zh:'一杯水'},
+      {en:'people with a sweet tooth', zh:'爱吃甜食的人'},
+    ],
+    words: [
+      {zh:'千克；公斤', en:'kilo', alt:['kilogram']},
+      {zh:'硬纸盒，塑料盒', en:'carton'},
+    ],
+    phrases: [
+      {zh:'四斤肉', en:'four kilos of meat'},
+      {zh:'两块奶酪', en:'two pieces of cheese'},
+      {zh:'一碗汤', en:'a bowl of soup'},
+      {zh:'一袋盐', en:'a packet of salt'},
+    ],
+    sentences: [
+      {zh:'西蒙，我们需要给班级派对买什么食物？', en:'Simon, what food do we need to buy for the class party?'},
+      {zh:'对于爱吃甜品的人来说，我们也可以买些糖果和巧克力。', en:'For people with a sweet tooth, we can also buy some sweets and chocolate.', alt:['For people who have a sweet tooth, we can also buy some sweets and chocolate.']},
+      {zh:'我们需要40瓶水和10盒牛奶。', en:'We need forty bottles of water and ten cartons of milk.'},
+      {zh:'在树边有三只玩具火车。', en:'There are three toy trains near the tree.'},
+      {zh:'农场里的水果十分新鲜。', en:'The fruit on the farm is very fresh.'},
+    ],
+  },
+  {
+    u:5, sec:'integrationAC', label:'Integration (A-C)',
+    rev: [
+      {en:'I have a big meal for breakfast.', zh:'我早饭吃一顿大餐。'},
+    ],
+    words: [
+      {zh:'炸薯条；炸薯片', en:'chip'},
+      {zh:'智能手机', en:'smartphone'},
+      {zh:'平板电脑', en:'tablet'},
+      {zh:'分数；成绩，比分', en:'score'},
+      {zh:'得分；要点；观点', en:'point'},
+      {zh:'几乎', en:'almost'},
+    ],
+    phrases: [
+      {zh:'早操过后', en:'after morning exercises'},
+      {zh:'煮美味的粥', en:'cook delicious porridge'},
+      {zh:'锻炼少于一周三次', en:'exercise less than three times a week'},
+      {zh:'做出一些改变', en:'make some changes'},
+    ],
+    sentences: [
+      {zh:'你需要以一种健康的方式去饮食，锻炼更多或睡眠更多。', en:'You need to eat in a healthy way, exercise more or get more sleep.', alt:['You need to eat in a healthy way, exercise more and get more sleep.','You need to eat in a healthy way, exercise more or sleep more.']},
+      {zh:'早饭是重要的一餐。它给我们整个早上提供能量。', en:'Breakfast is an important meal. It gives us energy for the whole morning.'},
+      {zh:'—你早饭吃什么？—我早饭很少吃水果，但我会吃一顿大餐。', en:'—What do you have for breakfast? —I seldom have fruit for breakfast, but I have a big meal.'},
+      {zh:'你在每天电脑上花多少时间？', en:'How much time do you spend on the computer every day?'},
+      {zh:'我们应当从来不会不吃早饭。', en:'We should never skip breakfast.', alt:['We should never go without breakfast.','We should never go to school without breakfast.','We should never miss breakfast.']},
+    ],
+  },
+  {
+    u:5, sec:'integrationD', label:'Integration (D)',
+    rev: [
+      {en:'I do sport almost every day. Sport helps me keep fit.', zh:'我几乎每天做运动。运动帮助我保持健康。'},
+    ],
+    words: [
+      {zh:'休息时间', en:'break'},
+      {zh:'大多数', en:'most'},
+    ],
+    phrases: [
+      {zh:'两餐之间吃酸奶', en:'eat yoghurt between meals'},
+      {zh:'用不同方式煮面', en:'cook noodles in different ways'},
+    ],
+    sentences: [
+      {zh:'对我来说，健康的生活方式全在于一个健康的饮食习惯，足够的运动和休息。', en:'For me, a healthy lifestyle is all about a healthy diet, enough exercise and rest.'},
+      {zh:'当我晚上睡得好，我第二天有许多能量。', en:"A good night's sleep gives me lots of energy for the next day.", alt:['When I sleep well at night, I have lots of energy the next day.','When I sleep well at night, I have a lot of energy the next day.']},
+      {zh:'拥有一个健康的生活方式，我能保持健康。', en:'I can stay fit with a healthy lifestyle.', alt:['With a healthy lifestyle, I can keep fit.','With a healthy lifestyle, I can stay fit.']},
+    ],
+  },
+  {
+    u:5, sec:'phrasesheet', label:'重点表达（背诵/默写）',
+    rev: [],
+    words: [],
+    phrases: [
+      {zh:"一些学生的生活方式", en:"some students' lifestyles"},
+      {zh:'对我们的健康有好处', en:'be good for our health'},
+      {zh:'每天跳舞半小时', en:'dance for half an hour every day'},
+      {zh:'改变他不健康的生活方式', en:'change his unhealthy lifestyle', alt:['change his unhealthy lifestyles']},
+      {zh:'我们吃的东西以及我们生活的方式', en:'what we eat and how we live'},
+      {zh:'不吃早饭就上学', en:'go to school without breakfast'},
+      {zh:'熬夜', en:'stay up late', alt:['stay up']},
+      {zh:'计划每星期去游泳', en:'plan to go swimming every week'},
+      {zh:'得到足够的睡眠', en:'get enough sleep'},
+      {zh:'给我早上的能量', en:'give me energy for the morning', alt:['give us energy for the morning']},
+      {zh:'三片奶酪', en:'three pieces of cheese'},
+      {zh:'一袋盐', en:'a packet of salt'},
+      {zh:'五盒牛奶', en:'five cartons of milk'},
+      {zh:'有助于…/有害于…', en:'be good for ... / be bad for ...'},
+      {zh:'拒绝', en:'say no to'},
+      {zh:'爱吃甜食', en:'have a sweet tooth'},
+      {zh:'超过9小时', en:'more than 9 hours'},
+      {zh:'一整个早晨', en:'the whole morning'},
+      {zh:'几乎每天', en:'almost every day'},
+      {zh:'足够的睡眠和休息', en:'enough sleep and rest'},
+      {zh:'对你的饮食做出一些改变', en:'make some changes to your diet'},
+      {zh:'不同的烹饪风格', en:'different cooking styles'},
+      {zh:'确保', en:'make sure'},
+    ],
+    sentences: [
+      {zh:'一百个孩子有一百个梦想。', en:'One hundred children have one hundred dreams.'},
+      {zh:'对我来说保持健康很重要。', en:"It's important for me to keep fit.", alt:['It is important for me to keep fit.']},
+      {zh:'不健康的生活犹如干涸的河流。', en:'A life without health is like a river without water.'},
+    ],
+  },
+];
+
+// ========== ESSAYS (📝 单元范文·背诵) ==========
+// 数据源：`U1-4 期中复习背诵卷(1).docx` 各单元「单元范文」提升版 / 基础版
+const ESSAYS = [
+  {
+    u:1, level:'提升版', title:'This is me!',
+    paras:[
+      'My favourite subjects are Maths and Computer Science because they are interesting. I am good at them, and I am willing to help my classmates with Maths problems.',
+      'I enjoy playing Chinese chess and ping-pong. I often play these with my dad at the weekend. They bring me much fun. I have many new classmates at school. They are so nice that I am happy to make friends with them.',
+    ],
+  },
+  {
+    u:1, level:'基础版', title:'This is me!',
+    paras:[
+      'Hi there! I am Chen Dan from Class 1, Grade 7. My English name is Daniel. I am 12 years old.',
+      'My favourite subjects are Maths and Computer Science. They are interesting. I am good at them, and I like to help my classmates with Maths problems.',
+      'I enjoy playing Chinese chess and ping-pong. I often play these with my dad at the weekend. They are fun. I have many new classmates at school. They are all very nice. I am happy to make friends with them.',
+    ],
+  },
+  {
+    u:2, level:'提升版', title:'Hobbies',
+    paras:[
+      "I have a deep love for painting because it brings me so much happiness. Every week, I make time to paint, and I often join my friends after school to create art together. What's more, we enjoy sharing our paintings and talking about different ideas. It is great fun.",
+      'My favourite artist is Xu Beihong, a true master of Chinese painting. His paintings of horses are great works of art. I dream of becoming a designer. I would like to design beautiful clothes in the future. I believe my painting skills will be very helpful to me. I will continue to work hard and hope my dream can come true one day.',
+    ],
+  },
+  {
+    u:2, level:'基础版', title:'Hobbies',
+    paras:[
+      'I love painting. It makes me feel happy. I paint every week. I often paint with my friends after school. We enjoy sharing our paintings and talking about art. It is great fun.',
+      'My favourite artist is Xu Beihong. He was a master of Chinese painting. His paintings of horses are great works of art. I want to become a designer. I would like to design beautiful clothes in the future. My painting skills can help me a lot. I hope my dream can come true.',
+    ],
+  },
+  {
+    u:3, level:'提升版', title:'Welcome to our school',
+    paras:[
+      'Hello, everyone! Welcome to my school. My school is Sunshine Middle School. Although it is not very big, it is really beautiful.',
+      'There are 36 classrooms in our school. All of them are bright and clean. Besides, we have a modern library, where I love reading in my free time. We also have a big dining hall and a wonderful sports field. Lots of exciting sports matches are held there. As for our teachers, they are very kind. They not only care about us, but also help us with our studies. Meanwhile, my classmates are friendly and helpful. We often help each other when we meet problems.',
+      'In a word, I love my school. It is a special place for me. I feel so happy to be a student here.',
+    ],
+  },
+  {
+    u:3, level:'基础版', title:'Welcome to our school',
+    paras:[
+      'Hello, everyone! Welcome to my school! My school is Sunshine Middle School. It is not very big, but it is very beautiful.',
+      'There are 36 classrooms in my school. They are all bright and clean. We have a modern library. I like reading there. We also have a big dining hall and a great sports field. Lots of exciting sports matches take place on the sports field. Our teachers are very kind. They care about us and help us with our studies. Our classmates are friendly and helpful. We often help each other.',
+      'I love my school. It is a special place for me. I am happy to be a student here.',
+    ],
+  },
+  {
+    u:4, level:'提升版', title:'School days',
+    paras:[
+      'In my class, we work in groups and take turns to do different chores.',
+      'My group is on duty every Monday. Usually, Simon cleans the windows, while Daniel prefers to sweep the floor. As for me, I am responsible for cleaning the blackboard and emptying the bins.',
+      'We have a "class farm". I enjoy watering the plants there, which helps me learn how to take care of them.',
+      'By doing our part for the class, we not only keep our classroom clean and tidy but also learn the importance of teamwork. It makes us happy to contribute together.',
+    ],
+  },
+  {
+    u:4, level:'基础版', title:'School days',
+    paras:[
+      'In my class, we all work in groups and take turns to do different chores.',
+      'My group works on Mondays. Usually, Simon cleans the windows, Daniel likes to sweep the floor. I clean the blackboard and empty the bins.',
+      'We have a "class farm". We learn how to take care of the plants there. I like to water them.',
+      'We do chores for our class and learn about teamwork. We are happy to keep our classroom clean and tidy.',
+    ],
+  },
 ];
 
 // ========== STATE ==========
@@ -1995,6 +2546,8 @@ let state = {
   answers: {}, // key: "tab-unit-index" -> {correct:bool}
   grammarAnswers: {},
   readings: {}, // 朗读训练: key "u:part" -> true (已完成)
+  essays: {}, // 范文背诵: key "essay-index" -> true (已背诵)
+  essayHidden: {}, // 范文原文显隐（仅本次会话）: key -> true (已隐藏)
   dictAnswers: {}, // 默写卷: key "dict-u-sec-type-i" -> {correct, userInput} 或 {revealed:true}
   // flashcards (spaced repetition)
   flashcards: {},      // key "type:index" -> {box, next, seen}
@@ -2023,6 +2576,7 @@ function loadProgress() {
       state.answers = p.answers || {};
       state.grammarAnswers = p.grammarAnswers || {};
       state.readings = p.readings || {};
+      state.essays = p.essays || {};
       state.dictAnswers = p.dictAnswers || {};
       state.flashcards = p.flashcards || {};
       if (p.flashType) state.flashType = p.flashType;
@@ -2039,6 +2593,7 @@ function saveProgress() {
       answers: state.answers,
       grammarAnswers: state.grammarAnswers,
       readings: state.readings,
+      essays: state.essays,
       dictAnswers: state.dictAnswers,
       flashcards: state.flashcards,
       flashType: state.flashType,
@@ -2067,7 +2622,7 @@ function selectTab(tab) {
   state.tab = tab;
   document.querySelectorAll('.tab-btn').forEach(el => {
     el.classList.toggle('active', el.textContent.includes(
-      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : tab === 'reading' ? '朗读' : tab === 'dict' ? '默写' : '打印'
+      tab === 'words' ? '单词' : tab === 'phrases' ? '词组' : tab === 'sentences' ? '句子' : tab === 'grammar' ? '语法' : tab === 'flashcards' ? '闪卡' : tab === 'reading' ? '朗读' : tab === 'essay' ? '范文' : tab === 'dict' ? '默写' : '打印'
     ));
   });
   render();
@@ -2150,6 +2705,7 @@ function render() {
   if (state.tab === 'grammar') return renderGrammar(el);
   if (state.tab === 'flashcards') return renderFlashcards(el);
   if (state.tab === 'reading') return renderReading(el);
+  if (state.tab === 'essay') return renderEssays(el);
   if (state.tab === 'dict') return renderDictPaper(el);
   renderDictation(el);
 }
@@ -2823,12 +3379,64 @@ function playRecording(key) {
   _recAudio.play();
 }
 
+// ========== MODEL ESSAYS (📝 范文背诵) ==========
+function essayKey(i) { return 'essay-' + i; }
+function renderEssays(el) {
+  const units = state.unit === 'all' ? [1,2,3,4] : [state.unit];
+  const list = ESSAYS.map((e, i) => ({e, i})).filter(x => units.includes(x.e.u));
+  const done = list.filter(x => state.essays[essayKey(x.i)]).length;
+  let html = `<div class="stats">
+      <span>📝 共 ${list.length} 篇单元范文</span>
+      <span>✅ 已背诵 ${done}</span>
+      <span>💡 先「隐藏原文」尝试背诵，再「显示原文」核对</span>
+    </div>`;
+  if (!list.length) {
+    el.innerHTML = html + `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元暂无范文（目前收录 Unit 1-4 期中范文）</div>`;
+    return;
+  }
+  [...new Set(list.map(x => x.e.u))].forEach(u => {
+    html += `<h3 class="read-unit">Unit ${u} ${READ_UNIT_TITLES[u]}</h3>`;
+    list.filter(x => x.e.u === u).forEach(({e, i}) => {
+      const isDone = !!state.essays[essayKey(i)];
+      const hidden = !!state.essayHidden[i];
+      html += `<div class="essay-card ${isDone ? 'done' : ''}">
+        <div class="essay-head">
+          <span class="essay-title">${esc(e.title)}</span>
+          <span class="essay-level">${e.level}</span>
+        </div>
+        ${hidden
+          ? `<div class="essay-mask">🙈 原文已隐藏，试着背出来吧～</div>`
+          : `<div class="essay-body">${e.paras.map(p => `<p>${esc(p)}</p>`).join('')}</div>`}
+        <div class="read-actions" style="margin-top:10px;">
+          <button class="btn btn-outline sm" onclick="speakEssay(${i})">🔊 朗读全文</button>
+          <button class="btn btn-outline sm" onclick="toggleEssayHide(${i})">${hidden ? '👁 显示原文' : '🙈 隐藏原文'}</button>
+          <button class="btn ${isDone ? 'btn-outline' : 'btn-success'} sm" onclick="toggleEssayDone(${i})">${isDone ? '↩️ 取消已背诵' : '✅ 标记已背诵'}</button>
+        </div>
+      </div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+function speakEssay(i) { const e = ESSAYS[i]; if (e) speak(e.paras.join(' ')); }
+function toggleEssayHide(i) {
+  if (state.essayHidden[i]) delete state.essayHidden[i]; else state.essayHidden[i] = true;
+  render();
+}
+function toggleEssayDone(i) {
+  const k = essayKey(i);
+  if (state.essays[k]) delete state.essays[k]; else state.essays[k] = true;
+  saveProgress();
+  render();
+}
+
 // ========== DICTATION PAPER (✍️ 默写卷) ==========
 const DICT_GROUPS = [
   {type:'rev',       title:'🔄 复习 · 英译中', hint:'点击眼睛显示中文'},
   {type:'words',     title:'🔤 单词',          hint:'考试要求：单词 + 词性'},
   {type:'phrases',   title:'🔗 词组',          hint:''},
   {type:'sentences', title:'✏️ 句子',          hint:''},
+  {type:'fill',      title:'📝 词汇检测',      hint:'用所给词的适当形式填空'},
+  {type:'complete',  title:'🧩 完成句子',      hint:'根据中文补全句子'},
 ];
 
 function dictSections() {
@@ -2882,7 +3490,7 @@ function renderDictPaper(el) {
   });
 
   if (!secs.length || total === 0) {
-    html += `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元暂无默写卷（目前收录 Unit 1-4）</div>`;
+    html += `<div style="text-align:center;padding:40px;color:var(--text-light);">该单元暂无默写卷（目前收录 Unit 1-5，含 Unit 1-4 期中复习卷）</div>`;
   }
   el.innerHTML = html;
 }
@@ -2891,7 +3499,8 @@ function dictRowHtml(html, s, si, type, item, i) {
   const key = dictKey(s, type, i);
   const a = state.dictAnswers[key];
   const inputId = `di-${si}-${type}-${i}`;
-  html += `<div class="dict-row ${type === 'sentences' ? 'sent' : ''}">`;
+  const fullRow = type === 'sentences' || type === 'fill' || type === 'complete';
+  html += `<div class="dict-row ${fullRow ? 'sent' : ''}">`;
   html += `<span class="no">${i+1}.</span>`;
 
   if (type === 'rev') {
@@ -2907,9 +3516,12 @@ function dictRowHtml(html, s, si, type, item, i) {
     return html;
   }
 
-  // 看中文默写英文
+  // 看中文默写英文（fill：英文题干；complete：中文 + 填空支架）
   html += `<span class="prompt">${esc(item.zh)}</span>`;
-  html += `<input type="text" id="${inputId}" placeholder="输入英文..."
+  if (item.given) {
+    html += `<div class="dict-given">填空提示：${esc(item.given)}</div>`;
+  }
+  html += `<div class="dict-answer-line"><input type="text" id="${inputId}" placeholder="输入英文..."
     ${a ? 'disabled' : ''}
     class="${a ? (a.correct ? 'correct' : 'wrong') : ''}"
     ${a ? `value="${esc(a.userInput || '')}"` : ''}
@@ -2919,10 +3531,7 @@ function dictRowHtml(html, s, si, type, item, i) {
   } else {
     html += `<span class="ans ${a.correct ? 'answer-display correct' : 'answer-display wrong'}">${a.correct ? '✓ 正确' : '✗ ' + esc(item.en)}</span>`;
   }
-  if (item.given) {
-    html += `<div class="dict-given">填空提示：${esc(item.given)}</div>`;
-  }
-  html += `</div>`;
+  html += `</div></div>`;
   return html;
 }
 
@@ -3020,6 +3629,22 @@ function doPrintDict() {
         html += `<div class="write-line"></div></div>`;
       });
     }
+    const fills = s.fill || [];
+    if (fills.length) {
+      html += `<div class="print-sub">词汇检测（用所给词的适当形式填空）:</div>`;
+      fills.forEach((f, i) => {
+        html += `<div class="print-item"><span class="prompt">${i+1}. ${f.zh}</span><div class="write-line"></div></div>`;
+      });
+    }
+    const completes = s.complete || [];
+    if (completes.length) {
+      html += `<div class="print-sub">完成句子:</div>`;
+      completes.forEach((c, i) => {
+        html += `<div class="print-item"><span class="prompt">${i+1}. ${c.zh}</span>`;
+        if (c.given) html += `<div class="prompt" style="margin-top:4px;">${c.given}</div>`;
+        html += `<div class="write-line"></div></div>`;
+      });
+    }
   });
 
   el.innerHTML = `
@@ -3096,6 +3721,9 @@ function resetProgress() {
   if (!confirm('确定要重置所有进度吗？此操作不可撤销。')) return;
   state.answers = {};
   state.grammarAnswers = {};
+  state.readings = {};
+  state.essays = {};
+  state.essayHidden = {};
   state.dictAnswers = {};
   state.flashcards = {};
   state.flashDaily = { date: '', count: 0 };

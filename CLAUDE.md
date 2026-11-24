@@ -9,16 +9,16 @@
 | File | Purpose |
 |------|---------|
 | `6B_review.html` | 6B 复习网站主文件（单文件应用，包含 HTML/CSS/JS 和所有数据） |
-| `7A.html` | 7A 复习专题（单文件应用；含单词/词组/句子/语法/闪卡/朗读/默写卷/打印八大模块，原名 `7A单词_review.html`） |
+| `7A.html` | 7A 复习专题（单文件应用；含单词/词组/句子/语法/闪卡/朗读/范文/默写卷/打印九大模块，原名 `7A单词_review.html`） |
 | `7A单词/` | 7A wordlist 截图数据源（1-6.jpeg，单词 + 词组） |
 | `7A句子/` | 7A Notes 截图数据源（132-139.jpeg，重点句子 + 讲解短语） |
 | `7A语法/` | 7A Grammar check 截图数据源（140-148.jpeg，每单元语法讲解） |
-| `7A默写/` | 7A 默写卷 docx 数据源（`2026 7A U1默写卷.docx`、`2025 7A U2默写卷.docx`、`7A U3默写卷(1).docx`、`7A U4默写卷.docx`，✍️ 默写卷 tab 的数据源） |
+| `7A默写/` | 7A 默写卷 docx 数据源（`2026 7A U1默写卷.docx`、`2025 7A U2默写卷.docx`、`7A U3默写卷(1).docx`、`7A U4默写卷.docx`、`2025 7A U5默写卷.docx`，以及期中复习 `U1-4 期中复习默写卷.docx` + `U1-4 期中复习背诵卷(1).docx`，✍️ 默写卷 / 📝 范文 tab 的数据源） |
 | `7A 单词录音、课文录音/` | 7A 教材配套 MP3（8 个单元子目录共 61 个文件，🎤 朗读 tab 的音频源；已提交进 git，Pages 线上可用） |
 
 > 注：6B 的原始数据源文件（`6B知识梳理单.html/.pdf`、`6B U7/U8 知识梳理.docx`）已删除；6B 的全部数据已内嵌在 `6B_review.html` 中。
 
-> `7A.html`（原名 `7A单词_review.html`）由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab 并新增「🎴 闪卡」「🎤 朗读」「✍️ 默写卷」三个 tab（共八个），去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`（`state.unit` 也随进度保存，重新打开页面自动恢复上次选中的单元）。数据规模：words 355 / phrases 250 / sentences 143 / grammar 69（53 选择 + 16 填空）/ readings 61 段教材录音（Unit 1-8）+ DICTATION 默写卷 28 节（Unit 1-4 各 7 节）。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
+> `7A.html`（原名 `7A单词_review.html`）由 `6B_review.html` 模板裁剪而来：保留「单词听写 / 词组听写 / 句子听写 / 语法练习 / 打印练习」五个 tab 并新增「🎴 闪卡」「🎤 朗读」「📝 范文」「✍️ 默写卷」四个 tab（共九个），去掉了专项默写（dictation）与语法汇总（grammarReview）；localStorage key 为 `7a_words_review_progress`（`state.unit` 也随进度保存，重新打开页面自动恢复上次选中的单元）。数据规模：words 361 / phrases 297 / sentences 170 / grammar 69（53 选择 + 16 填空）/ readings 61 段教材录音（Unit 1-8）+ ESSAYS 8 篇单元范文（U1-4 提升版/基础版）+ DICTATION 默写卷 39 节（Unit 1-5 各 7 节，另加 Unit 1-4 各 1 节「期中复习」）。各单元语法专题：U1 be动词一般现在时 · U2 行为动词一般现在时(三单) · U3 人称代词 · U4 时间介词+频度副词 · U5 可数与不可数名词 · U6 疑问句 · U7 some-any+there be · U8 现在进行时。
 
 ### 🎤 朗读 tab（7A 独有）
 
@@ -26,13 +26,19 @@
 - 每段录音一张卡片：原生 `<audio>` 播放器（0.75x/1x 调速）+ 🎙️ 录音跟读（`getUserMedia` + `MediaRecorder`，浏览器本地录音）+ 标记完成。
 - 录音 Blob 只存内存（模块级 `_recs`，刷新失效，不进 localStorage）；完成一次跟读自动标记已朗读。完成状态存 `state.readings`（key `"{u}:{part}"` → true），随 `loadProgress`/`saveProgress` 持久化。
 
+### 📝 范文 tab（7A 独有）
+
+- 数据为 `ESSAYS` 数组（8 条：Unit 1-4 各「提升版 / 基础版」各一篇）：`{u, level, title, paras:[...]}`，数据源 `7A默写/U1-4 期中复习背诵卷(1).docx` 的「单元范文」。
+- 每个单元按范文卡片展示：`🔊 朗读全文`（复用 `speak()`）、`🙈 隐藏原文` / `👁 显示原文`（隐藏状态存内存 `state.essayHidden`，不持久化）、`✅ 标记已背诵`。
+- 已背诵状态存 `state.essays`（key `essay-{索引}` → true），随 `loadProgress`/`saveProgress` 持久化；按当前选中单元过滤，U5-8 显示「暂无范文」提示。
+
 ### ✍️ 默写卷 tab（7A 独有）
 
-- 数据为 `DICTATION` 数组，每单元多个分节（数据源 `7A默写/` 下各单元 docx）：`{u, sec, label, rev, words, phrases, sentences}`；U1-U4 各 7 节（Welcome / Reading I / Reading II / Grammar & Pronunciation / Integration A-C / Integration D / 词组卷），U3、U4 最后一节 label 为「重点表达（背诵/默写）」。
-- 每节按原卷顺序分四组：`rev`（英译中复习，👁 点击显示中文，不录入）、`words` / `phrases` / `sentences`（看中文默写英文，输入 + 校验）。条目格式 `{zh, en, alt?, given?}`：`alt` 为可接受的其他写法（`checkAnyAnswer` 任一命中即算对，主 DATA 的 words/phrases/sentences 同样支持 `alt`）；句子的 `given` 是原卷填空支架，显示为提示、答案仍是完整句。
+- 数据为 `DICTATION` 数组，每单元多个分节（数据源 `7A默写/` 下各单元 docx）：`{u, sec, label, rev, words, phrases, sentences, fill, complete}`；U1-U5 各 7 节（Welcome / Reading I / Reading II / Grammar & Pronunciation / Integration A-C / Integration D / 词组卷），另加 U1-U4 各 1 节 `sec:'midterm'` label「期中复习」（数据源 `U1-4 期中复习默写卷.docx`；U4 最后一节 label 为「重点表达（背诵/默写）」）。
+- 每节按原卷顺序分六组：`rev`（英译中复习，👁 点击显示中文，不录入）、`words` / `phrases` / `sentences`（看中文默写英文，输入 + 校验）、`fill`（词汇检测：英文题干 + 括号提示，填词形）、`complete`（完成句子：中文 + `given` 填空支架，答案填完整句）。条目格式 `{zh, en, alt?, given?}`：`alt` 为可接受的其他写法（`checkAnyAnswer` 任一命中即算对，主 DATA 的 words/phrases/sentences 同样支持 `alt`）；句子的 `given` 是原卷填空支架，显示为提示、答案仍是完整句。
 - 进度 key `dict-{u}-{sec}-{type}-{i}`，存 `state.dictAnswers`（`{correct, userInput}` 或 `{revealed:true}`），随 `loadProgress`/`saveProgress` 持久化；重做分两级：顶部「重做本单元」（`clearDictProgress`，按当前单元清除）和每节节头的「↩️ 重做本节」（`clearDictSection`，只清该分节，有作答记录时才显示）。
-- 「🖨️ 打印默写卷」按原卷版式生成可打印空白卷（Revision/Words(词性)/Phrases/Sentences 分组，填空句带支架），支持 `print-grid cols-2/3/5`。
-- 默写卷的知识点已同步合并进主 DATA（U1：words +age，phrases +44 条，sentences +22 条；U2：words +kite/yummy，phrases +42 条，sentences +24 条；U3：words +together，phrases +46 条，sentences +22 条；U4：words 无新增，phrases +47 条，sentences +20 条），因此闪卡/单元听写/打印练习都能覆盖。
+- 「🖨️ 打印默写卷」按原卷版式生成可打印空白卷（Revision/Words(词性)/Phrases/Sentences/词汇检测/完成句子 分组，填空句带支架），支持 `print-grid cols-2/3/5`。
+- 默写卷的知识点已同步合并进主 DATA（U1：words +age，phrases +44 条，sentences +22 条；U2：words +kite/yummy，phrases +42 条，sentences +24 条；U3：words +together，phrases +46 条，sentences +22 条；U4：words 无新增，phrases +47 条，sentences +20 条；U5：words +break，phrases +35 条，sentences +22 条；期中复习卷：words +hobbies/matches/jogging/activities/videos，phrases +12 条，sentences +5 条），因此闪卡/单元听写/打印练习都能覆盖。
 - **新增默写卷时必须同时合并到主 DATA**（单词/词组/句子听写），按英文规范化后去重；单词只收单个词，多词条目归入 `phrases`，`phrases` 与 `sentences` 的英文互不重叠。仅作为已有条目的词形/句式变体（如 `matches`/`match`、`be good at sport`/`be good at sports`、长句中的片段）不重复添加，可给已有条目补 `alt`。
 - 合并时的两条不变量（与 U1 保持一致）：DATA.words 只放单个词（不含多词条目），且 `phrases` 与 `sentences` 的英文互不重叠——同一句中英只归入其中一个数组。
 
@@ -127,16 +133,22 @@ resetProgress()     -- 重置所有进度
 ```js
 // 每单元多个分节；rev = 英译中复习 {en, zh}；其余为 {zh, en, alt?, given?}
 {
-  u: <unit>, sec: "<分节id>", label: "<Welcome / Reading I / ...>",
+  u: <unit>, sec: "<分节id>", label: "<Welcome / Reading I / ... / 期中复习>",
   rev: [{en: "greet each other", zh: "互相问候"}],
   words: [{zh: "介绍", en: "introduce"}],
   phrases: [{zh: "在同一个班级", en: "in the same class", alt: ["..."]}],
   sentences: [{zh: "张晶准备好介绍她自己了吗？", en: "Is Zhang Jing ready to introduce herself?",
-               given: "______ Zhang Jing ______ ______ ______ herself?"}]
+               given: "______ Zhang Jing ______ ______ ______ herself?"}],
+  fill: [{zh: "The girl enjoys ____ (chat) with her classmates.", en: "chatting"}],
+  complete: [{zh: "我的弟弟通常在早晨练习说英语。",
+              en: "My brother practises speaking English in the morning.",
+              alt: ["My brother practices speaking English in the morning."],
+              given: "My brother ____ ____ ____ English ____ the morning."}]
 }
 ```
 
-- words / phrases / sentences 条目的 `alt`（可选数组）：同义写法/缩写展开任一命中即算对，主 DATA 同样支持。
+- words / phrases / sentences / fill / complete 条目的 `alt`（可选数组）：同义写法/缩写展开任一命中即算对，主 DATA 同样支持。
+- `fill` 的 `zh` 是英文题干（含 `____` 与括号提示），答案是词形；`complete` 的 `zh` 是中文、`given` 是英文填空支架、`en` 是完整答案。
 
 ## How to Add a New Semester / Book
 
